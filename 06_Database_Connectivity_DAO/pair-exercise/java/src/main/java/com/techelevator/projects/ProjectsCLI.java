@@ -75,7 +75,7 @@ public class ProjectsCLI {
 		this.menu = new Menu(System.in, System.out);
 		
 		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setUrl("jdbc:postgresql://localhost:5432/projects");
+		dataSource.setUrl("jdbc:postgresql://localhost:5432/department_projects");
 		dataSource.setUsername("postgres");
 		dataSource.setPassword("postgres1");
 		
@@ -142,6 +142,7 @@ public class ProjectsCLI {
 
 	private void handleListAllDepartments() {
 		printHeading("All Departments");
+		System.out.println("calling get all depts");
 		List<Department> allDepartments = departmentDAO.getAllDepartments();
 		listDepartments(allDepartments);
 	}
