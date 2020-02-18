@@ -23,7 +23,7 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 	@Override
 	public List<Employee> getAllEmployees() {
 
-		String sqlFindAllEmp = "SELECT * FROM employee";
+		String sqlFindAllEmp = "SELECT * FROM employee ORDER BY employee_id ASC";
 		List<Employee> allEmployees = new ArrayList<>();
 		SqlRowSet result = jdbcTemplate.queryForRowSet(sqlFindAllEmp);
 
@@ -37,11 +37,11 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 	@Override
 	public List<Employee> searchEmployeesByName(String firstNameSearch, String lastNameSearch) {
 		List<Employee> employeeNames = new ArrayList<Employee>();
-		String sqlFindEmpByNames = "SELECT * FROM employee " + "WHERE first_name = ? AND last_name = ?";
+		String sqlFindEmpByNames = "SELECT * FROM employee WHERE first_name ILIKE ? AND last_name ILIKE ?";
 
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindEmpByNames, firstNameSearch, lastNameSearch);
 
-		if (results.next()) {
+		while (results.next()) {
 			Employee employee = mapRowToEmp(results);
 			employeeNames.add(employee);
 
@@ -63,7 +63,7 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlEmpNoProject);
 
-		if (results.next()) {
+		while (results.next()) {
 			Employee employee = mapRowToEmp(results);
 			employeeNames.add(employee);
 
