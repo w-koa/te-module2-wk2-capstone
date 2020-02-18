@@ -1,5 +1,6 @@
 package com.techelevator.projects.model.jdbc;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,14 +52,21 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 
 	@Override
 	public List<Employee> getEmployeesByDepartmentId(long id) {
-		return new ArrayList<>();
+		List<Employee> employees = new ArrayList<>();
+		String sqlFindEmployeeByDeptId = "SELECT * FROM employee WHERE department_id = ?";
+
+		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindEmployeeByDeptId, id);
+		while (results.next()) {
+			employees.add(mapRowToEmp(results));
+		}
+		return employees;
 	}
 
 	@Override
 	public List<Employee> getEmployeesWithoutProjects() {
 
 		List<Employee> employeeNames = new ArrayList<Employee>();
-		String sqlEmpNoProject = "SELECT a.*" + " FROM employee a "
+		String sqlEmpNoProject = "SELECT * FROM employee a "
 				+ " WHERE a.employee_id NOT IN (SELECT b.employee_id FROM project_employee b)";
 
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlEmpNoProject);
@@ -74,7 +82,15 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 
 	@Override
 	public List<Employee> getEmployeesByProjectId(Long projectId) {
-		return new ArrayList<>();
+		List<Employee> employees = new ArrayList<>();
+		String sqlFindEmployeeByProjectId = "SELECT * FROM project_employee pe "
+				+ "JOIN employee e ON e.employee_id = pe.employee_id WHERE project_id = ?";
+
+		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindEmployeeByProjectId, projectId);
+		while (results.next()) {
+			employees.add(mapRowToEmp(results));
+		}
+		return employees;
 	}
 
 	@Override
@@ -86,16 +102,14 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 
 	private Employee mapRowToEmp(SqlRowSet results) {
 		Employee employee = new Employee();
-		employee.setId(results.getLong("employee_id")); // inside the parens is the db column name and mapping to the
-														// City
-		// object
+		employee.setId(results.getLong("employee_id")); 
 		employee.setDepartmentId(results.getLong("department_id"));
 		employee.setFirstName(results.getString("first_name"));
 		employee.setLastName(results.getString("last_name"));
-//		employee.setBirthDay(results.getDate("birth_date"));
-//		employee.setGender(results.getString("gender"));
-//		employee.setHireDate(results.getDate("hire_date"));
-		
+		employee.setBirthDay(LocalDate.parse(results.getString("birth_date")));
+		employee.setGender(results.getString("gender").charAt(0));
+		employee.setHireDate(LocalDate.parse(results.getString("hire_date")));
+
 		return employee;
 	}
 

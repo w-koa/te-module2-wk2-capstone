@@ -22,12 +22,10 @@ public class JDBCDepartmentDAO implements DepartmentDAO {
 	@Override
 	public List<Department> getAllDepartments() {
 		String sqlFindAllDept = "SELECT * FROM department;";
-		System.out.println("in get all depts");
 		List<Department> allDepartments = new ArrayList<>();
 		SqlRowSet result = jdbcTemplate.queryForRowSet(sqlFindAllDept);
 
 		while (result.next()) {
-			System.out.println("have results");
 			allDepartments.add(mapRowToDept(result));
 
 		}
@@ -66,7 +64,7 @@ public class JDBCDepartmentDAO implements DepartmentDAO {
 
 	@Override
 	public Department createDepartment(Department newDepartment) {
-		String sqlInsertDepartment = "INSERT INTO department(department_id, name) " + "VALUES(?, ?)";
+		String sqlInsertDepartment = "INSERT INTO department(department_id, name) VALUES(?, ?)";
 		newDepartment.setId(getNextDeptId());
 
 		jdbcTemplate.update(sqlInsertDepartment, newDepartment.getId(), newDepartment.getName());
@@ -76,10 +74,10 @@ public class JDBCDepartmentDAO implements DepartmentDAO {
 	@Override
 	public Department getDepartmentById(Long id) {
 		Department theDept = null;
-		String sqlFindDeptById = "SELECT id, name " + "FROM department WHERE id = ?";
+		String sqlFindDeptById = "SELECT id, name FROM department WHERE id = ?";
 
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindDeptById, id);
-		if (results.next()) {
+		while (results.next()) {
 			theDept = mapRowToDept(results);
 		}
 		return theDept;
@@ -89,8 +87,7 @@ public class JDBCDepartmentDAO implements DepartmentDAO {
 
 	private Department mapRowToDept(SqlRowSet results) {
 		Department theDept = new Department();
-		theDept.setId(results.getLong("department_id")); // inside the parens is the db column name and mapping to the City
-													// object
+		theDept.setId(results.getLong("department_id"));
 		theDept.setName(results.getString("name"));
 		return theDept;
 	}
