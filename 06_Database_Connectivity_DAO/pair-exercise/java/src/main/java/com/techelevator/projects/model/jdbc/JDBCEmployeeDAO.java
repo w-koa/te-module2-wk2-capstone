@@ -102,7 +102,7 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 
 	private Employee mapRowToEmp(SqlRowSet results) {
 		Employee employee = new Employee();
-		employee.setId(results.getLong("employee_id")); 
+		employee.setId(results.getLong("employee_id"));
 		employee.setDepartmentId(results.getLong("department_id"));
 		employee.setFirstName(results.getString("first_name"));
 		employee.setLastName(results.getString("last_name"));
@@ -111,6 +111,26 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 		employee.setHireDate(LocalDate.parse(results.getString("hire_date")));
 
 		return employee;
+	}
+
+	private long getNextEmployeeId() {
+		SqlRowSet nextIdResult = jdbcTemplate.queryForRowSet("SELECT nextval('seq_employee_id')");
+		if (nextIdResult.next()) {
+			return nextIdResult.getLong(1);
+		} else {
+			throw new RuntimeException("Something went wrong while getting an id for the new city");
+		}
+	}
+
+	public Employee createEmployee(Employee newEmployee) {
+		String sqlInsertEmployee = "INSERT INTO employee(employee_id,department_id,first_name, "
+				+ " last_name, birth_date , gender, hire_date ) " + "VALUES(?, ?, ?, ?, ?, ?, ?)";
+		newEmployee.setId(getNextEmployeeId());
+
+		jdbcTemplate.update(sqlInsertEmployee, newEmployee.getId(), newEmployee.getDepartmentId(),
+				newEmployee.getFirstName(), newEmployee.getLastName(), newEmployee.getBirthDay(),
+				newEmployee.getGender(), newEmployee.getHireDate());
+		return newEmployee;
 	}
 
 }
