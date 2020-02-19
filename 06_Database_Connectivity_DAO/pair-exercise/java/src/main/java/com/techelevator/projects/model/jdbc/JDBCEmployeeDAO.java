@@ -123,7 +123,7 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 	}
 
 	public Employee createEmployee(Employee newEmployee) {
-		String sqlInsertEmployee = "INSERT INTO employee(employee_id,department_id,first_name, "
+		String sqlInsertEmployee = "INSERT INTO employee(employee_id, department_id, first_name, "
 				+ " last_name, birth_date , gender, hire_date ) " + "VALUES(?, ?, ?, ?, ?, ?, ?)";
 		newEmployee.setId(getNextEmployeeId());
 
