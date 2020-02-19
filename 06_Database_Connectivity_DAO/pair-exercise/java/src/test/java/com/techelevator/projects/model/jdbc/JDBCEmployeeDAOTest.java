@@ -35,7 +35,7 @@ public class JDBCEmployeeDAOTest {
 	 * session and hence the same database transaction */
 	private static SingleConnectionDataSource dataSource;
 	private JDBCEmployeeDAO dao;
-
+	private JDBCProjectDAO projectDao;
 	
 	// Before run any tests, this method will initialize the datasource for testing
 		@BeforeClass
@@ -58,14 +58,12 @@ public class JDBCEmployeeDAOTest {
 		@Before
 		public void setup() {
 			String sqlInsertEmployee = "INSERT INTO employee (employee_id, department_id, first_name, last_name, birth_date " +
-			         ", gender, hire_date) VALUES (13, 1, 'DUMMY', 'EMPLOYEE', '1970-05-16', 'M', '2019-05-16')"; 
-//			Employee dummyEmployee = getEmployee((long) 3, "Dummy", "Employee", LocalDate.of(1980, Month.APRIL, 21),
-//						'M', LocalDate.of(2010, Month.JANUARY, 1));
-//			dao.createEmployee(dummyEmployee);		                 
+			         ", gender, hire_date) VALUES (13, 1, 'DUMMY', 'EMPLOYEE', '1970-05-16', 'M', '2019-05-16')"; 	                 
 		
 			JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 			jdbcTemplate.update(sqlInsertEmployee);
 			dao = new JDBCEmployeeDAO(dataSource);
+			projectDao = new JDBCProjectDAO(dataSource);
 		}
 		
 		@After
@@ -98,7 +96,7 @@ public class JDBCEmployeeDAOTest {
 		@Test
 		public void get_employee_by_dept_id() {
 			List<Employee> employees = dao.getEmployeesByDepartmentId(1);
-			long expectedEmployeeCount = 0;
+			int expectedEmployeeCount = 0;
 			for (Employee employee : employees) { // probably don't need this since the list is employees in the department.
 				if (employee.getDepartmentId() == 1) {
 					expectedEmployeeCount++;
@@ -120,6 +118,29 @@ public class JDBCEmployeeDAOTest {
 			assertEquals(expectedCount, employees.size());
 		}
 		
+		@Test
+		public void get_employee_using_project_id() {
+			projectDao.addEmployeeToProject((long) 1, (long) 13);
+			List<Employee> employees = dao.getEmployeesByProjectId((long) 1);
+			int expectedCount = 0;
+			String expectedEmployeeFirstName = "DUMMY";
+			for (int i = 0; i < employees.size(); i++) {
+				expectedCount++;
+			}
+			
+			assertNotNull(employees);
+			assertEquals(expectedCount, employees.size());
+			assertEquals(expectedEmployeeFirstName, employees.get(employees.size() - 1).getFirstName());
+		}
+		
+		@Test
+		public void change_employee_dept() {
+			dao.changeEmployeeDepartment((long) 13, (long) 2);
+			List<Employee> employee = dao.searchEmployeesByName("DUMMY", "EMPLOYEE");
+			long expectedDeptId = 2;
+			assertNotNull(employee);
+			assertEquals(expectedDeptId, employee.get(0).getDepartmentId());
+		}
 		// Technically we don't need to bother with this test.
 //		@Test
 //		public void save_new_Employee_and_read_it_back() {

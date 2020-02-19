@@ -74,7 +74,7 @@ public class JDBCDepartmentDAO implements DepartmentDAO {
 	@Override
 	public Department getDepartmentById(Long id) {
 		Department theDept = null;
-		String sqlFindDeptById = "SELECT id, name FROM department WHERE id = ?";
+		String sqlFindDeptById = "SELECT department_id, name FROM department WHERE department_id = ?";
 
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindDeptById, id);
 		while (results.next()) {
