@@ -109,6 +109,17 @@ public class JDBCEmployeeDAOTest {
 			assertEquals(expectedEmployeeCount, employees.size());
 		}
 		
+		@Test
+		public void get_employees_without_projects_test() {
+			List<Employee> employees = dao.getEmployeesWithoutProjects();
+			int expectedCount = 0;
+			for (int i = 0; i < employees.size(); i++) {
+				expectedCount++;
+			}
+			assertNotNull(employees);
+			assertEquals(expectedCount, employees.size());
+		}
+		
 		// Technically we don't need to bother with this test.
 //		@Test
 //		public void save_new_Employee_and_read_it_back() {
