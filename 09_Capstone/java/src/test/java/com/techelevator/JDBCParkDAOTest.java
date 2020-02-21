@@ -58,10 +58,13 @@ public class JDBCParkDAOTest {
 	public void test_to_get_all_park() {
 
 		List<Park> allPark = parkDao.getAllParks();
-		
-		String expectedParkName = "TEST PARK";
+		int parkCount = 0;
+		for (int i = 0; i < allPark.size(); i++) {
+			parkCount++;
+		}
+	
 		assertNotNull(allPark);
-		assertEquals(expectedParkName, allPark.get(allPark.size() - 1).getName());
+		assertEquals(parkCount, allPark.size());
 	}
 
 	@Test
