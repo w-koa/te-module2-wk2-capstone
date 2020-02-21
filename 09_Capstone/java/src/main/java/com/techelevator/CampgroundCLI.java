@@ -133,28 +133,30 @@ public class CampgroundCLI {
 		} else {
 			LocalDate checkStartDate = getSafeUserDate("Enter start date (yyyy-mm-dd): ");
 			LocalDate checkEndDate = getSafeUserDate("Enter end date (yyyy-mm-dd): ");
-			if (((checkStartDate.getMonthValue() < Integer.parseInt(checkCampgroundToReserve.getOpenMonth())) &&
-					(checkStartDate.getMonthValue() > Integer.parseInt(checkCampgroundToReserve.getCloseMonth())))
-					|| ((checkEndDate.getMonthValue() < Integer.parseInt(checkCampgroundToReserve.getOpenMonth()))
-					&& (checkEndDate.getMonthValue() > Integer.parseInt(checkCampgroundToReserve.getCloseMonth())))) {
-				System.out.println("Sorry, campground is closed on that date.");
-				handleReservationSearch(savedPark);
-			} else {
-			
+			int[] openMonths = campgroundDAO.getCampgroundOpenMonths(checkCampgroundToReserve);
+			for (int i = 0; i < openMonths.length; i++) {
+				if (checkStartDate.getMonthValue() < openMonths[i]
+						&& checkEndDate.getMonthValue() > openMonths[i]) {
+					System.out.println("Sorry, campground is closed on that date.");
+					handleReservationSearch(savedPark);
+				}
+			}
+
 			List<Reservation> overlappingReservations = reservationDAO
 					.getOverlappingReservations(checkCampgroundToReserve, checkStartDate, checkEndDate);
 			List<Campsite> availableCampsites = campsiteDAO.getTopFiveCampsites(checkCampgroundToReserve,
 					overlappingReservations);
 
 			listCampsites(checkCampgroundToReserve, availableCampsites, checkStartDate, checkEndDate);
-			
+
 			// Put into another handler maybe
 			String campsiteReserveString = getUserInput("Enter the Campsite you would like to reserve: ");
 			Campsite campsiteToReserve = availableCampsites.get(Integer.parseInt(campsiteReserveString) - 1);
 			String reservationName = getUserInput("Enter name to reserve under: ");
-			
-			reservationDAO.createReservation(checkCampgroundToReserve, campsiteToReserve.getSiteId(), reservationName, checkStartDate, checkEndDate);
-			}
+
+			reservationDAO.createReservation(checkCampgroundToReserve, campsiteToReserve.getSiteId(), reservationName,
+					checkStartDate, checkEndDate);
+
 		}
 
 	}

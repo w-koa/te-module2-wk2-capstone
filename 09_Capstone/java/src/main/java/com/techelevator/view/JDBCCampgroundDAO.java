@@ -85,9 +85,9 @@ public class JDBCCampgroundDAO implements CampgroundDAO {
 		int openMonth = Integer.parseInt(campground.getOpenMonth());
 		int closeMonth = Integer.parseInt(campground.getCloseMonth());
 		int difference = closeMonth - openMonth;
-		int[] campgroundOpenMonths = new int[difference];
-		for (int i = openMonth; i < difference; i++) {
-			campgroundOpenMonths[i] = i;
+		int[] campgroundOpenMonths = new int[difference + 1];
+		for (int i = openMonth; i <= difference; i++) {
+			campgroundOpenMonths[i] = i + 1;
 		}
 		campground.setCampgroundOpenMonths(campgroundOpenMonths);
 		return campgroundOpenMonths;

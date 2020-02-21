@@ -36,7 +36,7 @@ public class TestingStuff {
 
 		String sampleMonth = "05";
 		int sampleInteger = Integer.parseInt(sampleMonth);
-		System.out.println(sampleInteger);
+	System.out.println(sampleInteger);
 
 //		List<Park> parks = parkDAO.getAllParks();
 		
@@ -46,15 +46,22 @@ public class TestingStuff {
 		
 		List<Campground> campgrounds = campgroundDAO.getAllCampgrounds();
 	
-		int openMonth = Integer.parseInt(campgrounds.get(0).getOpenMonth());
-		int closeMonth = Integer.parseInt(campgrounds.get(0).getCloseMonth());
+		int openMonth = Integer.parseInt(campgrounds.get(2).getOpenMonth());
+		int closeMonth = Integer.parseInt(campgrounds.get(2).getCloseMonth());
 		int difference = closeMonth - openMonth;
-		int[] campgroundOpenMonths = new int[difference];
-		for (int i = openMonth; i < difference; i++) {
-			campgroundOpenMonths[i] = i;
+		int[] campgroundOpenMonths = new int[difference + 1];
+		for (int i = 0; i <= difference; i++) {
+			campgroundOpenMonths[i] = i + 1;
 		}
-		campgrounds.get(0).setCampgroundOpenMonths(campgroundOpenMonths);
-		campgroundDAO.getCampgroundOpenMonths(campgrounds.get(1));
+		System.out.println(openMonth);
+		System.out.println(closeMonth);
+		System.out.println(difference);
+		
+		campgrounds.get(2).setCampgroundOpenMonths(campgroundOpenMonths);
+		for (int month : campgroundOpenMonths) {
+			System.out.println(month);
+		}
+		campgroundDAO.getCampgroundOpenMonths(campgrounds.get(2));
 		System.out.println(	campgrounds.get(0).getCampgroundOpenMonths());
 		System.out.println(campgrounds.get(1).getCampgroundOpenMonths());
 //		if (((checkStartDate.getMonthValue() < Integer.parseInt(checkCampgroundToReserve.getOpenMonth())) &&
