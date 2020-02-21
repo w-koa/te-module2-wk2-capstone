@@ -1,9 +1,10 @@
 package com.techelevator;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
@@ -35,11 +36,13 @@ public class CampgroundCLI {
 		CampgroundCLI application = new CampgroundCLI();
 		application.run();
 	}
+
 	@SuppressWarnings("resource")
 	private String getUserInput(String prompt) {
 		System.out.print(prompt + " >>> ");
 		return new Scanner(System.in).nextLine();
 	}
+
 	public CampgroundCLI() {
 		this.menu = new Menu(System.in, System.out);
 
@@ -57,56 +60,72 @@ public class CampgroundCLI {
 	private void listCampgrounds(List<Campground> campgrounds) {
 		System.out.println();
 		System.out.printf("    %-24s \t%4s \t%5s \t%10s\n", "Name", "Open", "Close", "Daily Fee");
-		if(campgrounds.size() > 0) {
-			for(int i = 0; i < campgrounds.size(); i++) {
+		if (campgrounds.size() > 0) {
+			for (int i = 0; i < campgrounds.size(); i++) {
 				int counter = i + 1;
-				System.out.printf("%1d.) %-26s \t%2s \t%2s   \t$%.2f\n", counter, campgrounds.get(i).getCampgroundName(), 
-				campgrounds.get(i).getOpenMonth(), campgrounds.get(i).getCloseMonth(), campgrounds.get(i).getDailyFee());
-				
+				System.out.printf("%1d.) %-26s \t%2s \t%2s   \t$%.2f\n", counter,
+						campgrounds.get(i).getCampgroundName(), campgrounds.get(i).getOpenMonth(),
+						campgrounds.get(i).getCloseMonth(), campgrounds.get(i).getDailyFee());
+
 			}
 		} else {
 			System.out.println("\n*** No results ***");
 		}
 	}
+
 	public void handleParkMenu(Park savedPark) {
 		System.out.println("Park Info and Menu");
-		String choice = (String)menu.getChoiceFromOptions(menuOptions.PARK_MENU_OPTIONS);
+		String choice = (String) menu.getChoiceFromOptions(menuOptions.PARK_MENU_OPTIONS);
 		if (choice.equals(menuOptions.PARK_MENU_OPTION_VIEW_CAMPGROUNDS)) {
 			listCampgrounds(campgroundDAO.getCampgroundsByParkName(savedPark.getName()));
 		} else if (choice.equals(menuOptions.PARK_MENU_OPTION_SEARCH_FOR_RESERVATION)) {
 			listCampgrounds(campgroundDAO.getCampgroundsByParkName(savedPark.getName()));
 			handleCampgroundMenu(savedPark);
-		} 
+		}
 	}
 
 	public void handleCampgroundMenu(Park savedPark) {
 		System.out.println("Campground Info and Menu");
-		String choice = (String)menu.getChoiceFromOptions(menuOptions.CAMPGROUND_MENU_OPTIONS);
+		String choice = (String) menu.getChoiceFromOptions(menuOptions.CAMPGROUND_MENU_OPTIONS);
 		if (choice.equals(menuOptions.CAMPGROUND_MENU_OPTION_SEARCH_FOR_AVAILABLE_RESERVATION)) {
-			listCampgrounds(campgroundDAO.getCampgroundsByParkName(savedPark.getName()));
 			handleReservationSearch(savedPark);
-		} 
+		}
 	}
-	
+
 	public void handleReservationSearch(Park savedPark) {
 		System.out.println();
-		System.out.println("Enter Campground (enter 0 to cancel): ");
 		List<Campground> campgrounds = campgroundDAO.getCampgroundsByParkName(savedPark.getName());
+		listCampgrounds(campgrounds);
 		String[] campgroundNames = new String[campgrounds.size()];
 		for (int i = 0; i < campgrounds.size(); i++) {
 			campgroundNames[i] = campgrounds.get(i).getCampgroundName();
 		}
-		String campgroundReserveString = getUserInput("Enter Campground (enter 0 to cancel):");
-		String reserveStartString = getUserInput("Enter start date (yyyy-mm-dd): ");
-		String reserveEndString = getUserInput("Enter end date (yyyy-mm-dd): ");
-		
+		String campgroundReserveString = getUserInput("Enter Campground (enter 0 to cancel): ");
+		Campground checkCampgroundToReserve = campgrounds.get(Integer.parseInt(campgroundReserveString) - 1);
+		LocalDate checkStartDate = getSafeUserDate("Enter start date (yyyy-mm-dd): ");
+		LocalDate checkEndDate = getSafeUserDate("Enter end date (yyyy-mm-dd): ");
+
 		List<Reservation> availableReservations = new ArrayList<>();
-		
+
 		System.out.println(campgroundReserveString);
-		System.out.println(reserveStartString);
-		System.out.println(reserveEndString);
-		
+		System.out.println(checkStartDate);
+		System.out.println(checkEndDate);
+
 	}
+
+	private LocalDate getSafeUserDate(String prompt) {
+		LocalDate reserveStartDate = null;
+		while (reserveStartDate == null) {
+			try {
+			String reserveStartString = getUserInput(prompt);
+			reserveStartDate = LocalDate.parse(reserveStartString);
+			} catch(DateTimeParseException e) {
+				System.out.println("Invalid date, please follow format (yyyy-mm-dd)");
+			}
+		}
+		return reserveStartDate;
+	}
+
 	public void run() {
 		while (true) {
 			List<Park> parks = parkDAO.getAllParks();
@@ -126,22 +145,20 @@ public class CampgroundCLI {
 					savedPark = park;
 				}
 			}
-			
+
 			if (selectedParkName.equals(menuOptions.MENU_OPTION_QUIT)) {
 				break;
 			} else {
 //				parkDAO.displayParkInfo(selectedParkName);
-				
-				System.out.println(savedPark.getName() + " National Park \nLocation:\t" + savedPark.getLocation() 
-				+ "\nEstablished:\t" + savedPark.getEstablishDate()
-						+ "\nArea:\t\t" + savedPark.getArea() + "\nVisitors:\t" + savedPark.getVisitors());
+
+				System.out.println(savedPark.getName() + " National Park \nLocation:\t" + savedPark.getLocation()
+						+ "\nEstablished:\t" + savedPark.getEstablishDate() + "\nArea:\t\t" + savedPark.getArea()
+						+ "\nVisitors:\t" + savedPark.getVisitors());
 				System.out.println(savedPark.getDescription());
 				handleParkMenu(savedPark);
 //				handleParkMenu(selectedParkName);
 
 			}
-
-			
 
 		}
 	}
