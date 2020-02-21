@@ -3,6 +3,7 @@ package com.techelevator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
@@ -67,30 +68,30 @@ public class CampgroundCLI {
 			System.out.println("\n*** No results ***");
 		}
 	}
-	public void handleParkMenu(String parkName) {
+	public void handleParkMenu(Park savedPark) {
 		System.out.println("Park Info and Menu");
 		String choice = (String)menu.getChoiceFromOptions(menuOptions.PARK_MENU_OPTIONS);
 		if (choice.equals(menuOptions.PARK_MENU_OPTION_VIEW_CAMPGROUNDS)) {
-			listCampgrounds(campgroundDAO.getCampgroundsByParkName(parkName));
+			listCampgrounds(campgroundDAO.getCampgroundsByParkName(savedPark.getName()));
 		} else if (choice.equals(menuOptions.PARK_MENU_OPTION_SEARCH_FOR_RESERVATION)) {
-			listCampgrounds(campgroundDAO.getCampgroundsByParkName(parkName));
-			handleCampgroundMenu(parkName);
+			listCampgrounds(campgroundDAO.getCampgroundsByParkName(savedPark.getName()));
+			handleCampgroundMenu(savedPark);
 		} 
 	}
 
-	public void handleCampgroundMenu(String parkName) {
+	public void handleCampgroundMenu(Park savedPark) {
 		System.out.println("Campground Info and Menu");
 		String choice = (String)menu.getChoiceFromOptions(menuOptions.CAMPGROUND_MENU_OPTIONS);
 		if (choice.equals(menuOptions.CAMPGROUND_MENU_OPTION_SEARCH_FOR_AVAILABLE_RESERVATION)) {
-			listCampgrounds(campgroundDAO.getCampgroundsByParkName(parkName));
-			handleReservationSearch(parkName);
+			listCampgrounds(campgroundDAO.getCampgroundsByParkName(savedPark.getName()));
+			handleReservationSearch(savedPark);
 		} 
 	}
 	
-	public void handleReservationSearch(String parkName) {
+	public void handleReservationSearch(Park savedPark) {
 		System.out.println();
 		System.out.println("Enter Campground (enter 0 to cancel): ");
-		List<Campground> campgrounds = campgroundDAO.getCampgroundsByParkName(parkName);
+		List<Campground> campgrounds = campgroundDAO.getCampgroundsByParkName(savedPark.getName());
 		String[] campgroundNames = new String[campgrounds.size()];
 		for (int i = 0; i < campgrounds.size(); i++) {
 			campgroundNames[i] = campgrounds.get(i).getCampgroundName();
@@ -109,18 +110,35 @@ public class CampgroundCLI {
 	public void run() {
 		while (true) {
 			List<Park> parks = parkDAO.getAllParks();
+//			parks.stream()
+//				.map(Park::getName)
+//				.collect(Collectors.toList())
+//				.toArray();
 			String[] parkNames = new String[parks.size()];
 			for (int i = 0; i < parks.size(); i++) {
 				parkNames[i] = parks.get(i).getName();
 			}
 
-
+			Park savedPark = null;
 			String selectedParkName = (String) menu.getChoiceFromOptions(parkNames);
+			for (Park park : parks) {
+				if (selectedParkName.equals(park.getName())) {
+					savedPark = park;
+				}
+			}
+			
 			if (selectedParkName.equals(menuOptions.MENU_OPTION_QUIT)) {
 				break;
 			} else {
-				parkDAO.displayParkInfo(selectedParkName);
-				handleParkMenu(selectedParkName);
+//				parkDAO.displayParkInfo(selectedParkName);
+				
+				System.out.println(savedPark.getName() + " National Park \nLocation:\t" + savedPark.getLocation() 
+				+ "\nEstablished:\t" + savedPark.getEstablishDate()
+						+ "\nArea:\t\t" + savedPark.getArea() + "\nVisitors:\t" + savedPark.getVisitors());
+				System.out.println(savedPark.getDescription());
+				handleParkMenu(savedPark);
+//				handleParkMenu(selectedParkName);
+
 			}
 
 			
