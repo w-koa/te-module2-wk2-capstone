@@ -13,8 +13,7 @@ public class Park {
 	private int area;
 	private int visitors;
 	private String description;
-	
-	
+
 	// Getters and Setters
 	public int getParkId() {
 		return parkId;

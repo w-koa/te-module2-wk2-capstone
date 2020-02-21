@@ -8,6 +8,7 @@ public interface CampgroundDAO {
 	public List<Campground> getCampgroundById(int id);
 	public List<Campground> getCampgroundByParkId(int id);
 	public List<Campground> getCampgroundsByParkName(String parkName);
+	public int[] getCampgroundOpenMonths(Campground campground);
 	
 	
 }

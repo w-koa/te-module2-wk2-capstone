@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+import com.techelevator.model.Campground;
 import com.techelevator.model.Park;
 import com.techelevator.model.ParkDAO;
 
@@ -74,5 +75,7 @@ public class JDBCParkDAO implements ParkDAO {
 			System.out.println(description);
 		}
 	}
+	
+	
 
 }
