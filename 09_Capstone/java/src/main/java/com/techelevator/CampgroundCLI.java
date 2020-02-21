@@ -1,8 +1,8 @@
 package com.techelevator;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -10,6 +10,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 
 import com.techelevator.model.Campground;
 import com.techelevator.model.CampgroundDAO;
+import com.techelevator.model.Campsite;
 import com.techelevator.model.CampsiteDAO;
 import com.techelevator.model.Park;
 import com.techelevator.model.ParkDAO;
@@ -72,6 +73,29 @@ public class CampgroundCLI {
 			System.out.println("\n*** No results ***");
 		}
 	}
+	
+	private void listCampsites(Campground campground, List<Campsite> campsites, LocalDate startInput, LocalDate endInput) {
+		System.out.println();
+		System.out.printf("    %8s \t%10s \t%10s\t%-10s \t%10s\n", "Site No.", "Max Occup.", "Accessible", "Utilities", "Total Cost");
+		
+		if (campsites.size() > 0) {
+			for (int i = 0; i < campsites.size(); i++) {
+				int counter = i + 1;
+				double totalCost = 0;
+				LocalDate endDate = endInput;
+				LocalDate startDate = startInput;
+				Duration diff = Duration.between(startDate.atStartOfDay(), endDate.atStartOfDay());
+				long diffDays = diff.toDays();
+				totalCost = campground.getDailyFee() * (diffDays);
+				System.out.printf("%1d.) %-4s \t%-5s \t\t%5s  \t\t%5s \t\t$%.2f\n", counter,
+						campsites.get(i).getSiteNumber(), campsites.get(i).getMaxOccupancy(),
+						campsites.get(i).isAccessible(), campsites.get(i).isHasUtilities(), totalCost);
+
+			}
+		} else {
+			System.out.println("\n*** No results ***");
+		}
+	}
 
 	public void handleParkMenu(Park savedPark) {
 		System.out.println("Park Info and Menu");
@@ -104,12 +128,11 @@ public class CampgroundCLI {
 		Campground checkCampgroundToReserve = campgrounds.get(Integer.parseInt(campgroundReserveString) - 1);
 		LocalDate checkStartDate = getSafeUserDate("Enter start date (yyyy-mm-dd): ");
 		LocalDate checkEndDate = getSafeUserDate("Enter end date (yyyy-mm-dd): ");
-
-		List<Reservation> availableReservations = new ArrayList<>();
-
-		System.out.println(campgroundReserveString);
-		System.out.println(checkStartDate);
-		System.out.println(checkEndDate);
+		
+		List<Reservation> overlappingReservations = reservationDAO.getOverlappingReservations(checkCampgroundToReserve, checkStartDate, checkEndDate);
+		List<Campsite> availableCampsites = campsiteDAO.getTopFiveCampsites(checkCampgroundToReserve, overlappingReservations);
+		
+		listCampsites(checkCampgroundToReserve, availableCampsites, checkStartDate, checkEndDate);
 
 	}
 

@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface CampsiteDAO {
 
-	public List<Campsite> getAllCampsites();
-	public List<Campsite> getTopFiveCampsites(); // Does this belong here or Reservations
+	public List<Campsite> getAllCampsitesInCampground(Campground campground);
+	public List<Campsite> getTopFiveCampsites(Campground campground, List<Reservation> overlappingReservations); 
 	
 }
