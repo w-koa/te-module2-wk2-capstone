@@ -1,20 +1,62 @@
 package com.techelevator.view;
 
+import java.io.ObjectInputStream.GetField;
 import java.time.LocalDate;
+import java.util.List;
+
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import com.techelevator.model.Campground;
+import com.techelevator.model.CampgroundDAO;
+import com.techelevator.model.Park;
+import com.techelevator.model.ParkDAO;
 
 public class TestingStuff {
 
+	private JdbcTemplate jdbcTemplate;
+
 	public static void main(String[] args) {
+
+		ParkDAO parkDAO;
+		CampgroundDAO campgroundDAO;
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setUrl("jdbc:postgresql://localhost:5432/campground");
+		dataSource.setUsername("postgres");
+		dataSource.setPassword("postgres1");
+
+		parkDAO = new JDBCParkDAO(dataSource);
+		campgroundDAO = new JDBCCampgroundDAO(dataSource);
+
 		LocalDate now = LocalDate.now();
 		System.out.println(now);
-		
+
 		LocalDate checkStartDate = LocalDate.now();
 		LocalDate checkEndDate = LocalDate.of(2020, 4, 20);
-		
+
 		String sampleMonth = "05";
 		int sampleInteger = Integer.parseInt(sampleMonth);
 		System.out.println(sampleInteger);
+
+//		List<Park> parks = parkDAO.getAllParks();
 		
+			
+//			campground.setCampgroundOpenMonths(campgroundOpenMonths);
+		
+		
+		List<Campground> campgrounds = campgroundDAO.getAllCampgrounds();
+	
+		int openMonth = Integer.parseInt(campgrounds.get(0).getOpenMonth());
+		int closeMonth = Integer.parseInt(campgrounds.get(0).getCloseMonth());
+		int difference = closeMonth - openMonth;
+		int[] campgroundOpenMonths = new int[difference];
+		for (int i = openMonth; i < difference; i++) {
+			campgroundOpenMonths[i] = i;
+		}
+		campgrounds.get(0).setCampgroundOpenMonths(campgroundOpenMonths);
+		campgroundDAO.getCampgroundOpenMonths(campgrounds.get(1));
+		System.out.println(	campgrounds.get(0).getCampgroundOpenMonths());
+		System.out.println(campgrounds.get(1).getCampgroundOpenMonths());
 //		if (((checkStartDate.getMonthValue() < Integer.parseInt(checkCampgroundToReserve.getOpenMonth())) &&
 //				(checkStartDate.getMonthValue() > Integer.parseInt(checkCampgroundToReserve.getCloseMonth())))
 //				|| ((checkEndDate.getMonthValue() < Integer.parseInt(checkCampgroundToReserve.getOpenMonth()))

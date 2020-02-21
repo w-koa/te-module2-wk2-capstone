@@ -12,7 +12,7 @@ public class Campground {
 	private String openMonth;
 	private String closeMonth;
 	private double dailyFee;
-	
+	private int[] campgroundOpenMonths;
 	
 	// Getters and Setters
 	public int getCampgroundId() {
@@ -50,6 +50,12 @@ public class Campground {
 	}
 	public void setDailyFee(double dailyFee) {
 		this.dailyFee = dailyFee;
+	}
+	public int[] getCampgroundOpenMonths() {
+		return campgroundOpenMonths;
+	}
+	public void setCampgroundOpenMonths(int[] campgroundOpenMonths) {
+		this.campgroundOpenMonths = campgroundOpenMonths;
 	}
 	
 	
