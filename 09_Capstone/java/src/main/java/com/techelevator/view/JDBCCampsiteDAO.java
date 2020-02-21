@@ -50,9 +50,17 @@ public class JDBCCampsiteDAO implements CampsiteDAO {
 				}
 			}
 		}
-		for (int i = 0; i < campsitesInCampground.size(); i++) {
-			topFiveCampsitesAvailable.add(campsitesInCampground.get(i));
+		int campCount = campsitesInCampground.size();
+		if (campCount < 5) {
+			for (int i = 0; i < campsitesInCampground.size(); i++) {
+				topFiveCampsitesAvailable.add(campsitesInCampground.get(i));
+			}
+		} else {
+			for (int i = 0; i < 5; i++) {
+				topFiveCampsitesAvailable.add(campsitesInCampground.get(i));
+			}
 		}
+		
 
 		return topFiveCampsitesAvailable;
 	}
