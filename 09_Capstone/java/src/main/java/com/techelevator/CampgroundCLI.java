@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.postgresql.util.LruCache.CreateAction;
 
 import com.techelevator.model.Campground;
 import com.techelevator.model.CampgroundDAO;
@@ -59,8 +60,7 @@ public class CampgroundCLI {
 	}
 
 	private void listCampgrounds(List<Campground> campgrounds) {
-		System.out.println();
-		System.out.printf("    %-24s \t%4s \t%5s \t%10s\n", "Name", "Open", "Close", "Daily Fee");
+		System.out.printf("\n    %-24s \t%4s \t%5s \t%10s\n", "Name", "Open", "Close", "Daily Fee");
 		if (campgrounds.size() > 0) {
 			for (int i = 0; i < campgrounds.size(); i++) {
 				int counter = i + 1;
@@ -73,11 +73,13 @@ public class CampgroundCLI {
 			System.out.println("\n*** No results ***");
 		}
 	}
-	
-	private void listCampsites(Campground campground, List<Campsite> campsites, LocalDate startInput, LocalDate endInput) {
+
+	private void listCampsites(Campground campground, List<Campsite> campsites, LocalDate startInput,
+			LocalDate endInput) {
 		System.out.println();
-		System.out.printf("    %8s \t%10s \t%10s\t%-10s \t%10s\n", "Site No.", "Max Occup.", "Accessible", "Utilities", "Total Cost");
-		
+		System.out.printf("    %8s \t%10s \t%10s\t%-10s \t%10s\n", "Site No.", "Max Occup.", "Accessible", "Utilities",
+				"Total Cost");
+
 		if (campsites.size() > 0) {
 			for (int i = 0; i < campsites.size(); i++) {
 				int counter = i + 1;
@@ -98,7 +100,7 @@ public class CampgroundCLI {
 	}
 
 	public void handleParkMenu(Park savedPark) {
-		System.out.println("Park Info and Menu");
+		System.out.println("\nPark Info and Menu");
 		String choice = (String) menu.getChoiceFromOptions(menuOptions.PARK_MENU_OPTIONS);
 		if (choice.equals(menuOptions.PARK_MENU_OPTION_VIEW_CAMPGROUNDS)) {
 			listCampgrounds(campgroundDAO.getCampgroundsByParkName(savedPark.getName()));
@@ -109,7 +111,7 @@ public class CampgroundCLI {
 	}
 
 	public void handleCampgroundMenu(Park savedPark) {
-		System.out.println("Campground Info and Menu");
+		System.out.println("\nCampground Info and Menu");
 		String choice = (String) menu.getChoiceFromOptions(menuOptions.CAMPGROUND_MENU_OPTIONS);
 		if (choice.equals(menuOptions.CAMPGROUND_MENU_OPTION_SEARCH_FOR_AVAILABLE_RESERVATION)) {
 			handleReservationSearch(savedPark);
@@ -120,29 +122,51 @@ public class CampgroundCLI {
 		System.out.println();
 		List<Campground> campgrounds = campgroundDAO.getCampgroundsByParkName(savedPark.getName());
 		listCampgrounds(campgrounds);
-		String[] campgroundNames = new String[campgrounds.size()];
-		for (int i = 0; i < campgrounds.size(); i++) {
+		String[] campgroundNames = new String[campgrounds.size() + 1];
+		for (int i = 1; i < campgrounds.size(); i++) {
 			campgroundNames[i] = campgrounds.get(i).getCampgroundName();
 		}
 		String campgroundReserveString = getUserInput("Enter Campground (enter 0 to cancel): ");
-		Campground checkCampgroundToReserve = campgrounds.get(Integer.parseInt(campgroundReserveString) - 1);
-		LocalDate checkStartDate = getSafeUserDate("Enter start date (yyyy-mm-dd): ");
-		LocalDate checkEndDate = getSafeUserDate("Enter end date (yyyy-mm-dd): ");
-		
-		List<Reservation> overlappingReservations = reservationDAO.getOverlappingReservations(checkCampgroundToReserve, checkStartDate, checkEndDate);
-		List<Campsite> availableCampsites = campsiteDAO.getTopFiveCampsites(checkCampgroundToReserve, overlappingReservations);
-		
-		listCampsites(checkCampgroundToReserve, availableCampsites, checkStartDate, checkEndDate);
+		Campground checkCampgroundToReserve = campgrounds.get(Integer.parseInt(campgroundReserveString));
+		if (checkCampgroundToReserve.equals(campgrounds.get(0))) {
+			handleCampgroundMenu(savedPark);
+		} else {
+			LocalDate checkStartDate = getSafeUserDate("Enter start date (yyyy-mm-dd): ");
+			LocalDate checkEndDate = getSafeUserDate("Enter end date (yyyy-mm-dd): ");
+			if (((checkStartDate.getMonthValue() < Integer.parseInt(checkCampgroundToReserve.getOpenMonth())) &&
+					(checkStartDate.getMonthValue() > Integer.parseInt(checkCampgroundToReserve.getCloseMonth())))
+					|| ((checkEndDate.getMonthValue() < Integer.parseInt(checkCampgroundToReserve.getOpenMonth()))
+					&& (checkEndDate.getMonthValue() > Integer.parseInt(checkCampgroundToReserve.getCloseMonth())))) {
+				System.out.println("Sorry, campground is closed on that date.");
+				handleReservationSearch(savedPark);
+			} else {
+			
+			List<Reservation> overlappingReservations = reservationDAO
+					.getOverlappingReservations(checkCampgroundToReserve, checkStartDate, checkEndDate);
+			List<Campsite> availableCampsites = campsiteDAO.getTopFiveCampsites(checkCampgroundToReserve,
+					overlappingReservations);
+
+			listCampsites(checkCampgroundToReserve, availableCampsites, checkStartDate, checkEndDate);
+			
+			// Put into another handler maybe
+			String campsiteReserveString = getUserInput("Enter the Campsite you would like to reserve: ");
+			Campsite campsiteToReserve = availableCampsites.get(Integer.parseInt(campsiteReserveString) - 1);
+			String reservationName = getUserInput("Enter name to reserve under: ");
+			
+			reservationDAO.createReservation(checkCampgroundToReserve, campsiteToReserve.getSiteId(), reservationName, checkStartDate, checkEndDate);
+			}
+		}
 
 	}
 
+	// Gets LocalDate from user input, must have correct format
 	private LocalDate getSafeUserDate(String prompt) {
 		LocalDate reserveStartDate = null;
 		while (reserveStartDate == null) {
 			try {
-			String reserveStartString = getUserInput(prompt);
-			reserveStartDate = LocalDate.parse(reserveStartString);
-			} catch(DateTimeParseException e) {
+				String reserveStartString = getUserInput(prompt);
+				reserveStartDate = LocalDate.parse(reserveStartString);
+			} catch (DateTimeParseException e) {
 				System.out.println("Invalid date, please follow format (yyyy-mm-dd)");
 			}
 		}
@@ -160,7 +184,7 @@ public class CampgroundCLI {
 			for (int i = 0; i < parks.size(); i++) {
 				parkNames[i] = parks.get(i).getName();
 			}
-
+			System.out.println("Welcome to the National Park Reservation System!");
 			Park savedPark = null;
 			String selectedParkName = (String) menu.getChoiceFromOptions(parkNames);
 			for (Park park : parks) {

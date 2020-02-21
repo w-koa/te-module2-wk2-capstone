@@ -7,7 +7,7 @@ public interface ReservationDAO {
 
 	
 	public List<Reservation> searchForActiveReservations();
-	public void createReservation(int siteId, String name, LocalDate startDate, LocalDate endDate);
+	public void createReservation(Campground campground, int siteId, String name, LocalDate startDate, LocalDate endDate);
 	List<Reservation> getOverlappingReservations(Campground campground, LocalDate startDate, LocalDate endDate);
 	
 }
