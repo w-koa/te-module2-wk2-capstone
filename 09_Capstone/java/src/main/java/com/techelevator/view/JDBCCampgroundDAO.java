@@ -45,6 +45,7 @@ public class JDBCCampgroundDAO implements CampgroundDAO {
 	@Override
 	public List<Campground> getCampgroundById(int id) {
 		
+		
 		List<Campground> campgrounds = new ArrayList<>();
 		String sqlFindCampgroundById = "SELECT campground_id, park_id, name, open_from_mm, "
 				+ "open_to_mm, daily_fee FROM campground WHERE campground_id = ?";

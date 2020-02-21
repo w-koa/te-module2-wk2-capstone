@@ -14,56 +14,89 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 import com.techelevator.model.Campground;
+import com.techelevator.model.Park;
 import com.techelevator.view.JDBCCampgroundDAO;
 import com.techelevator.view.JDBCParkDAO;
 
 public class JDBCCampgroundDAOTest {
 
-		private static SingleConnectionDataSource dataSource;
-		private JDBCCampgroundDAO campgroundDAO;
-		private JDBCParkDAO parkDAO;
+	private static SingleConnectionDataSource dataSource;
+	private JDBCParkDAO parkDAO;
+	private JDBCCampgroundDAO campgroundDAO;
 
-		@BeforeClass
-		public static void setupDataSource() {
-			dataSource = new SingleConnectionDataSource();
-			dataSource.setUrl("jdbc:postgresql://localhost:5432/campground");
-			dataSource.setUsername("postgres");
-			dataSource.setPassword("postgres1");
-			dataSource.setAutoCommit(false);
-		}
+	@BeforeClass
+	public static void setupDataSource() {
+		dataSource = new SingleConnectionDataSource();
+		dataSource.setUrl("jdbc:postgresql://localhost:5432/campground");
+		dataSource.setUsername("postgres");
+		dataSource.setPassword("postgres1");
+		dataSource.setAutoCommit(false);
+	}
 
-		@AfterClass
-		public static void closeDataSource() {
-			dataSource.destroy();
-		}
+	@AfterClass
+	public static void closeDataSource() {
+		dataSource.destroy();
+	}
 
-		@Before
-		public void setup() {
-//			String sqlInsertPark = "INSERT INTO park (park_id, name, location, establish_date, area, visitors, description )"
-//					+ " VALUES (4 , 'TEST PARK', 'MICHIGAN', '1910-05-01', 10, 100,'BEST PARK') ";
-			
-			String sqlInsertCampGround = "INSERT INTO campground (campground_id, park_id, name, open_from_mm, open_to_mm, daily_fee) "
-					+ " VALUES (8 ,1, 'CAMPTEST', 05, 10, 100) ";
-		
+	@Before
+	public void setup() {
 
-			JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-//			jdbcTemplate.update(sqlInsertPark);
-			campgroundDAO = new JDBCCampgroundDAO(dataSource);
-			parkDAO = new JDBCParkDAO(dataSource);
-		}
+		String sqlInsertPark = "INSERT INTO park (park_id, name, location, establish_date, area, visitors, description )"
+				+ " VALUES (4 , 'TEST PARK', 'MICHIGAN', '1910-05-01', 10, 100,'BEST PARK') ";
+		String sqlInsertCampGround = "INSERT INTO campground (campground_id, park_id, name, open_from_mm, open_to_mm, daily_fee) "
+				+ " VALUES (8, 4, 'CAMPTEST', '05', '10', 100) ";
 
-		@After
-		public void rollback() throws SQLException {
-			dataSource.getConnection().rollback();
-		}
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		jdbcTemplate.update(sqlInsertPark);
+		jdbcTemplate.update(sqlInsertCampGround);
+		campgroundDAO = new JDBCCampgroundDAO(dataSource);
+		parkDAO = new JDBCParkDAO(dataSource);
+	}
+
+	@After
+	public void rollback() throws SQLException {
+		dataSource.getConnection().rollback();
+	}
 
 	@Test
 	public void test_to_get_all_campgrounds() {
-		List<Campground> allCampgrounds = campgroundDAO.getAllCampgrounds();
+		List<Campground> allCampground = campgroundDAO.getAllCampgrounds();
+		int campgroundCount = 0;
+		for (int i = 0; i < allCampground.size(); i++) {
+			campgroundCount++;
+		}
+
+		assertNotNull(allCampground);
+		assertEquals(campgroundCount, allCampground.size());
+	}
+
+	@Test
+	public void test_to_get_campground_by_id() {
+		List<Campground> allCampground = campgroundDAO.getAllCampgrounds();
+
+		int expectedCampgroundId = 8;
+		assertNotNull(allCampground);
+		assertEquals(expectedCampgroundId, allCampground.get(allCampground.size() - 1).getCampgroundId());
+	}
+
+	@Test
+	public void test_to_get_campground_by_park_id() {
+		List<Campground> allCampgroundInPark = campgroundDAO.getCampgroundByParkId(4);
+
 		String expectedCampgroundName = "CAMPTEST";
-		assertNotNull(allCampgrounds);
-		assertEquals(expectedCampgroundName, allCampgrounds.get(allCampgrounds.size()-1).getCampgroundName());
-		
+		assertNotNull(allCampgroundInPark);
+		assertEquals(expectedCampgroundName,
+				allCampgroundInPark.get(allCampgroundInPark.size() - 1).getCampgroundName());
+	}
+
+	@Test
+	public void test_to_get_campground_by_park_Name() {
+		List<Campground> allCampgroundInPark = campgroundDAO.getCampgroundsByParkName("TEST PARK");
+
+		String expectedCampgroundName = "CAMPTEST";
+		assertNotNull(allCampgroundInPark);
+		assertEquals(expectedCampgroundName,
+				allCampgroundInPark.get(allCampgroundInPark.size() - 1).getCampgroundName());
 	}
 
 }
