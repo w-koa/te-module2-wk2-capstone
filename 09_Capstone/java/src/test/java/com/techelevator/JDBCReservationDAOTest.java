@@ -1,9 +1,10 @@
 package com.techelevator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
@@ -13,8 +14,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
-import com.techelevator.model.ParkDAO;
 import com.techelevator.model.Reservation;
 import com.techelevator.view.JDBCReservationDAO;
 
@@ -64,9 +65,28 @@ public class JDBCReservationDAOTest {
 	}
 	
 	@Test
+	public void test_create_new_reservation() {
+		List<Reservation> reservations = new ArrayList<>();
+		Reservation test = new Reservation();
+		test.setReservationId(9999);
+		test.setSiteId(623);
+		test.setName("TEST");
+		test.setFromDate(LocalDate.of(2020, 02, 28));
+		test.setToDate(LocalDate.of(2020, 04, 2));
+		
+		reservationDAO.createReservation(test);
+		JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+		String sqlFindTest = "SELECT * FROM reservation WHERE reservation_id = 9999";
+		SqlRowSet results = jdbc.queryForRowSet(sqlFindTest);
+		while (results.next()) {
+			reservations.add(reservationDAO.mapRowToReservation(results));
+		}
+		assertEquals(9999, reservations.get(0).getReservationId());
+		
+	}
+	
+	@Test
 	public void test_to_get_overlapping_reservation() {
-		
-		
 		List<Reservation> activeBooked = reservationDAO.getOverlappingReservations( 8, LocalDate.parse("2020-02-22"), 
 				LocalDate.parse("2020-02-23"));
 		

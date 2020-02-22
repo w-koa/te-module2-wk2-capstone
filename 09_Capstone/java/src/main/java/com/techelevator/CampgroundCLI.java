@@ -167,22 +167,22 @@ public class CampgroundCLI {
 			String campsiteOption = getUserInput("Enter the Campsite you would like to reserve: ");
 			Campsite campsiteToReserve = availableCampsites.get(Integer.parseInt(campsiteOption) - 1);
 			String reservationName = getUserInput("Enter name to reserve under: ");
-			Reservation reservation = saveReservation(campgroundToReserve, 
-					reservationStartDate, reservationEndDate,
+			Reservation reservation = saveReservation(reservationStartDate, reservationEndDate,
 					campsiteToReserve, reservationName);
 			System.out.println("Thank you for booking a reservation at " + campgroundToReserve.getCampgroundName());
 			System.out.println("Reservation ID: " + reservation.getReservationId() + "\n");
 		}
 	}
 
-	private Reservation saveReservation(Campground checkCampgroundToReserve, LocalDate checkStartDate, LocalDate checkEndDate,
+	private Reservation saveReservation(LocalDate checkStartDate, LocalDate checkEndDate,
 			Campsite campsiteToReserve, String reservationName) {
 		Reservation newReservation = new Reservation();
+		newReservation.setReservationId(reservationDAO.getNextReservationId());
 		newReservation.setSiteId(campsiteToReserve.getSiteId());
 		newReservation.setName(reservationName);
 		newReservation.setFromDate(checkStartDate);
 		newReservation.setToDate(checkEndDate);
-		reservationDAO.createReservation(checkCampgroundToReserve, newReservation);
+		reservationDAO.createReservation(newReservation);
 		return newReservation;
 	}
 	

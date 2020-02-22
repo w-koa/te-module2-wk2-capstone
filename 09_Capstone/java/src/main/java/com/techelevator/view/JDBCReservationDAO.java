@@ -44,7 +44,7 @@ public class JDBCReservationDAO implements ReservationDAO {
 		
 	}
 	@Override
-	public void createReservation(Campground campground, Reservation newReservation) {
+	public void createReservation(Reservation newReservation) {
 		newReservation.setReservationId(getNextReservationId());
 		LocalDate createDate = LocalDate.now();
 		String sqlCreateReservation = "INSERT INTO reservation (reservation_id, site_id, name, from_date, to_date, create_date) "
@@ -56,7 +56,8 @@ public class JDBCReservationDAO implements ReservationDAO {
 
 	}
 	// Gets next reservation ID.... ONLY USE THIS IF ABSOLUTELY CREATING A NEW RESERVATION
-	private int getNextReservationId() {
+	@Override
+	public int getNextReservationId() {
 		SqlRowSet nextIdResult = jdbcTemplate.queryForRowSet(" SELECT nextval('reservation_reservation_id_seq')");
 		if (nextIdResult.next()) {
 			return nextIdResult.getInt(1);
@@ -64,7 +65,7 @@ public class JDBCReservationDAO implements ReservationDAO {
 			throw new RuntimeException("Uhoh!  Something went wrong while getting the next id!");
 		}
 	}
-	private Reservation mapRowToReservation(SqlRowSet results) {
+	public Reservation mapRowToReservation(SqlRowSet results) {
 		Reservation reservation = new Reservation();
 		reservation.setReservationId(results.getInt("reservation_id"));
 		reservation.setSiteId(results.getInt("site_id"));
