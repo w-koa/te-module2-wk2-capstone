@@ -24,15 +24,15 @@ public class JDBCReservationDAO implements ReservationDAO {
 	
 
 	@Override
-	public List<Reservation> getOverlappingReservations(Campground campground, LocalDate startDate, LocalDate endDate) {
+	public List<Reservation> getOverlappingReservations(int campgroundId, LocalDate startDate, LocalDate endDate) {
 		List<Reservation> overlappingReservations = new ArrayList<>();
 		Reservation reservation = null;
 		String sqlGetOverlapping = "SELECT * FROM reservation r "
 				+ "JOIN site s ON s.site_id = r.site_id "
-				+ "WHERE s.campground_id = ? AND ? BETWEEN from_date AND to_date "
-				+ "OR ? BETWEEN from_date AND to_date";
+				+ "WHERE s.campground_id = ? AND (? BETWEEN from_date AND to_date "
+				+ "OR ? BETWEEN from_date AND to_date)";
 		
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlGetOverlapping, campground.getCampgroundId(), startDate, endDate);
+		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlGetOverlapping, campgroundId, startDate, endDate);
 		while (results.next()) {
 			reservation = (mapRowToReservation(results));
 			overlappingReservations.add(reservation);

@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
+import com.techelevator.model.ParkDAO;
 import com.techelevator.model.Reservation;
 import com.techelevator.view.JDBCReservationDAO;
 
@@ -21,7 +22,7 @@ public class JDBCReservationDAOTest {
 
 	private static SingleConnectionDataSource dataSource;
 	private JDBCReservationDAO reservationDAO;
-
+	
 	@BeforeClass
 	public static void setupDataSource() {
 		dataSource = new SingleConnectionDataSource();
@@ -46,7 +47,7 @@ public class JDBCReservationDAOTest {
 		String sqlInsertSite = "INSERT INTO site (site_id, campground_id, site_number, max_occupancy, accessible, max_rv_length, utilities) "
 				+ " VALUES (623 , 8 , 1, 5, false, 0, true ) ";
 		String sqlInsertReservationActive = "INSERT INTO reservation (reservation_id, site_id, name, from_date, to_date, create_date) "
-				+ " VALUES (45 , 623, 'Sonthaya Deelua', '2020-02-18', '2020-02-25', '2020-02-21') ";
+				+ " VALUES (9999 , 623, 'Sonthaya Deelua', '2020-02-18', '2020-02-25', '2020-02-21') ";
 
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.update(sqlInsertPark);
@@ -65,8 +66,11 @@ public class JDBCReservationDAOTest {
 	@Test
 	public void test_to_get_overlapping_reservation() {
 		
-//		List<Reservation> activeBooked = reservationDAO.getOverlappingReservations( 8,LocalDate.parse("2020-02-22"),LocalDate.parse("2020-02-22"));
 		
+		List<Reservation> activeBooked = reservationDAO.getOverlappingReservations( 8, LocalDate.parse("2020-02-22"), 
+				LocalDate.parse("2020-02-23"));
+		
+		assertEquals(1, activeBooked.size());
 		
 	}
 }

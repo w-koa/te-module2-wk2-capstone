@@ -157,7 +157,7 @@ public class CampgroundCLI {
 			}
 			
 			List<Reservation> overlappingReservations = reservationDAO
-					.getOverlappingReservations(campgroundToReserve, reservationStartDate, reservationEndDate);
+					.getOverlappingReservations(campgroundToReserve.getCampgroundId(), reservationStartDate, reservationEndDate);
 			List<Campsite> availableCampsites = campsiteDAO.getTopFiveCampsites(campgroundToReserve,
 					overlappingReservations);
 
