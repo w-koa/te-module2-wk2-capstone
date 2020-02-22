@@ -14,14 +14,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 import com.techelevator.model.Campground;
-import com.techelevator.model.Park;
+//import com.techelevator.model.Park;
 import com.techelevator.view.JDBCCampgroundDAO;
-import com.techelevator.view.JDBCParkDAO;
 
 public class JDBCCampgroundDAOTest {
 
 	private static SingleConnectionDataSource dataSource;
-	private JDBCParkDAO parkDAO;
 	private JDBCCampgroundDAO campgroundDAO;
 
 	@BeforeClass
@@ -50,7 +48,7 @@ public class JDBCCampgroundDAOTest {
 		jdbcTemplate.update(sqlInsertPark);
 		jdbcTemplate.update(sqlInsertCampGround);
 		campgroundDAO = new JDBCCampgroundDAO(dataSource);
-		parkDAO = new JDBCParkDAO(dataSource);
+
 	}
 
 	@After
