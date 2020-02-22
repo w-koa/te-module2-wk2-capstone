@@ -49,9 +49,9 @@ public class TestingStuff {
 		int openMonth = Integer.parseInt(campgrounds.get(2).getOpenMonth());
 		int closeMonth = Integer.parseInt(campgrounds.get(2).getCloseMonth());
 		int difference = closeMonth - openMonth;
-		int[] campgroundOpenMonths = new int[difference + 1];
-		for (int i = 0; i <= difference; i++) {
-			campgroundOpenMonths[i] = i + 1;
+		int[] campgroundOpenMonths = new int[difference];
+		for (int i = openMonth, j = 0; i < closeMonth; i++, j++) {
+			campgroundOpenMonths[j] = i + 1;
 		}
 		System.out.println(openMonth);
 		System.out.println(closeMonth);
@@ -62,8 +62,6 @@ public class TestingStuff {
 			System.out.println(month);
 		}
 		campgroundDAO.getCampgroundOpenMonths(campgrounds.get(2));
-		System.out.println(	campgrounds.get(0).getCampgroundOpenMonths());
-		System.out.println(campgrounds.get(1).getCampgroundOpenMonths());
 //		if (((checkStartDate.getMonthValue() < Integer.parseInt(checkCampgroundToReserve.getOpenMonth())) &&
 //				(checkStartDate.getMonthValue() > Integer.parseInt(checkCampgroundToReserve.getCloseMonth())))
 //				|| ((checkEndDate.getMonthValue() < Integer.parseInt(checkCampgroundToReserve.getOpenMonth()))

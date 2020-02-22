@@ -45,7 +45,7 @@ public class JDBCCampsiteDAO implements CampsiteDAO {
 		List<Reservation> overlapping = overlappingReservations;
 		for (int i = 0; i < campsitesInCampground.size(); i++) {
 			for (int j = 0; j < overlapping.size(); j++) {
-				if (campsitesInCampground.get(j).getSiteId() == overlapping.get(j).getSiteId()) {
+				if (campsitesInCampground.get(i).getSiteId() == overlapping.get(j).getSiteId()) {
 					campsitesInCampground.remove(i);
 				}
 			}
