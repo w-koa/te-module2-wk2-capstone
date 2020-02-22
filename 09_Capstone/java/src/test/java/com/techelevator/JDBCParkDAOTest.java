@@ -80,6 +80,7 @@ public class JDBCParkDAOTest {
 		String expectedDescription = "BEST PARK";
 
 		assertNotNull(allPark);
+		assertEquals(expectedParkId, allPark.get(allPark.size() - 1).getParkId());
 		assertEquals(expectedParkName, allPark.get(allPark.size() - 1).getName());
 		assertEquals(expectedLocation, allPark.get(allPark.size() - 1).getLocation());
 		assertEquals(expectedEstablishDate, allPark.get(allPark.size() - 1).getEstablishDate());
