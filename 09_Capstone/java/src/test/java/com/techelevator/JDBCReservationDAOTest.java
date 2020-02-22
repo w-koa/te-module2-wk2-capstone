@@ -61,16 +61,6 @@ public class JDBCReservationDAOTest {
 	public void rollback() throws SQLException {
 		dataSource.getConnection().rollback();
 	}
-
-	@Test
-	public void test_to_search_for_reservation_active() {
-		List<Reservation> activeBooked = reservationDAO.searchForActiveReservations();
-
-		String expectedBookedName = "Sonthaya Deelua";
-		assertNotNull(activeBooked);
-		assertEquals(expectedBookedName, activeBooked.get(activeBooked.size() - 1).getName());
-
-	}
 	
 	@Test
 	public void test_to_get_overlapping_reservation() {

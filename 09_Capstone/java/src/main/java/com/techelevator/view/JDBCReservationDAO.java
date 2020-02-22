@@ -22,20 +22,6 @@ public class JDBCReservationDAO implements ReservationDAO {
 		jdbcTemplate = new JdbcTemplate(dataSource);
 	}
 	
-	@Override
-	public List<Reservation> searchForActiveReservations() {
-		List<Reservation> availableReservations = new ArrayList<>();
-		
-		String sqlFindReservations = "SELECT * FROM site s JOIN reservation r ON r.site_id = s.site_id " +
-				 "WHERE((to_date > CURRENT_DATE) OR (to_date IS NULL)) AND (from_date IS NOT NULL) "; 
-
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindReservations);
-		
-		while(results.next()) {
-			availableReservations.add(mapRowToReservation(results));
-		}
-		return availableReservations;
-	}
 
 	@Override
 	public List<Reservation> getOverlappingReservations(Campground campground, LocalDate startDate, LocalDate endDate) {

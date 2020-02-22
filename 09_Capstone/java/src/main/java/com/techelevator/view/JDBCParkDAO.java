@@ -49,33 +49,4 @@ public class JDBCParkDAO implements ParkDAO {
 		return allParks;
 	}
 
-	
-	// Displays park information by selecting from SQL by park_id. 
-	@Override
-	public void displayParkInfo(String parkName) {
-		
-		String sqlFindParkById = "SELECT park_id, name, location, establish_date, "
-				+ "area, visitors, description FROM park WHERE name = ?";
-
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindParkById, parkName);
-		while (results.next()) {
-
-			// Collects the info into these variables to be put into sout.
-			String name = results.getString("name");
-			String parkLocation = results.getString("location");
-			Date estDate = results.getDate("establish_date");
-			int area = results.getInt("area");
-			int visitors = results.getInt("visitors");
-//			String[] descriptionTEmp = results.getString("description").split(" ");
-			
-			String description = results.getString("description");
-
-			System.out.println(name + " National Park \nLocation:\t" + parkLocation + "\nEstablished:\t" + estDate
-					+ "\nArea:\t\t" + area + "\nVisitors:\t" + visitors);
-			System.out.println(description);
-		}
-	}
-	
-	
-
 }

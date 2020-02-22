@@ -83,7 +83,7 @@ public class CampgroundCLI {
 			if (selectedParkName.equals(MenuOptions.MENU_OPTION_QUIT)) {
 				break;
 			} else {
-
+				// Prints Park Info
 				System.out.println(savedPark.getName() + " National Park \nLocation:\t" + savedPark.getLocation()
 						+ "\nEstablished:\t" + savedPark.getEstablishDate() + "\nArea:\t\t" + savedPark.getArea()
 						+ "\nVisitors:\t" + savedPark.getVisitors());
