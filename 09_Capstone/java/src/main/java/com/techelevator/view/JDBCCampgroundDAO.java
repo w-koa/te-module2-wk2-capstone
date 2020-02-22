@@ -30,45 +30,7 @@ public class JDBCCampgroundDAO implements CampgroundDAO {
 		campground.setDailyFee(results.getDouble("daily_fee"));
 		return campground;
 	}
-	@Override
-	public List<Campground> getAllCampgrounds() {
-		String sqlFindAllCampgrounds= "SELECT * FROM campground";
-		List<Campground> allCampgrounds = new ArrayList<>();
-		SqlRowSet result = jdbcTemplate.queryForRowSet(sqlFindAllCampgrounds);
-
-		while (result.next()) {
-			allCampgrounds.add(mapRowToCampground(result));
-		}
-		return allCampgrounds;
-	}
-
-	@Override
-	public List<Campground> getCampgroundById(int id) {
-		
-		
-		List<Campground> campgrounds = new ArrayList<>();
-		String sqlFindCampgroundById = "SELECT campground_id, park_id, name, open_from_mm, "
-				+ "open_to_mm, daily_fee FROM campground WHERE campground_id = ?";
-
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindCampgroundById, id);
-		while (results.next()) {
-			campgrounds.add(mapRowToCampground(results));
-		}
-		return campgrounds;
-	}
-
-	@Override
-	public List<Campground> getCampgroundByParkId(int id) {
-		List<Campground> campgrounds = new ArrayList<>();
-		String sqlFindCampgroundById = "SELECT campground_id, park_id, name, open_from_mm, "
-				+ "open_to_mm, daily_fee FROM campground WHERE park_id = ?";
-
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindCampgroundById, id);
-		while (results.next()) {
-			campgrounds.add(mapRowToCampground(results));
-		}
-		return campgrounds;
-	}
+	
 	
 	@Override
 	public List<Campground> getCampgroundsByParkName(String parkName) {
@@ -81,15 +43,5 @@ public class JDBCCampgroundDAO implements CampgroundDAO {
 		}
 		return campgrounds;
 	}
-	@Override
-	public int[] getCampgroundOpenMonths(Campground campground) {
-		int openMonth = Integer.parseInt(campground.getOpenMonth());
-		int closeMonth = Integer.parseInt(campground.getCloseMonth());
-		int[] campgroundOpenMonths = new int[closeMonth - openMonth];
-		for (int i = openMonth, j = 0; i < closeMonth; i++) {
-			campgroundOpenMonths[j] = i + 1;
-		}
-		campground.setCampgroundOpenMonths(campgroundOpenMonths);
-		return campgroundOpenMonths;
-	}
+	
 }

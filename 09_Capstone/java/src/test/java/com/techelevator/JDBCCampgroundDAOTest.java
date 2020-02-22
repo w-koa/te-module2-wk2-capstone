@@ -56,36 +56,6 @@ public class JDBCCampgroundDAOTest {
 		dataSource.getConnection().rollback();
 	}
 
-	@Test
-	public void test_to_get_all_campgrounds() {
-		List<Campground> allCampground = campgroundDAO.getAllCampgrounds();
-		int campgroundCount = 0;
-		for (int i = 0; i < allCampground.size(); i++) {
-			campgroundCount++;
-		}
-
-		assertNotNull(allCampground);
-		assertEquals(campgroundCount, allCampground.size());
-	}
-
-	@Test
-	public void test_to_get_campground_by_id() {
-		List<Campground> allCampground = campgroundDAO.getAllCampgrounds();
-
-		int expectedCampgroundId = 8;
-		assertNotNull(allCampground);
-		assertEquals(expectedCampgroundId, allCampground.get(allCampground.size() - 1).getCampgroundId());
-	}
-
-	@Test
-	public void test_to_get_campground_by_park_id() {
-		List<Campground> allCampgroundInPark = campgroundDAO.getCampgroundByParkId(4);
-
-		String expectedCampgroundName = "CAMPTEST";
-		assertNotNull(allCampgroundInPark);
-		assertEquals(expectedCampgroundName,
-				allCampgroundInPark.get(allCampgroundInPark.size() - 1).getCampgroundName());
-	}
 
 	@Test
 	public void test_to_get_campground_by_park_Name() {

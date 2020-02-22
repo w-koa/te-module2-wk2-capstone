@@ -59,154 +59,7 @@ public class CampgroundCLI {
 		campsiteDAO = new JDBCCampsiteDAO(dataSource);
 		reservationDAO = new JDBCReservationDAO(dataSource);
 	}
-
-	private void listCampgrounds(List<Campground> campgrounds) {
-		System.out.printf("\n    %-24s \t%4s \t%5s \t%10s\n", "Name", "Open", "Close", "Daily Fee");
-		if (campgrounds.size() > 0) {
-			for (int i = 0; i < campgrounds.size(); i++) {
-				int counter = i + 1;
-				System.out.printf("%1d.) %-26s \t%2s \t%2s   \t$%.2f\n", counter,
-						campgrounds.get(i).getCampgroundName(), campgrounds.get(i).getOpenMonth(),
-						campgrounds.get(i).getCloseMonth(), campgrounds.get(i).getDailyFee());
-
-			}
-		} else {
-			System.out.println("\n*** No results ***");
-		}
-	}
-
-	private void listCampsites(Campground campground, List<Campsite> campsites, LocalDate startInput,
-			LocalDate endInput) {
-		System.out.println();
-		System.out.printf("    %8s \t%10s \t%10s\t%-10s \t%10s\n", "Site No.", "Max Occup.", "Accessible", "Utilities",
-				"Total Cost");
-
-		if (campsites.size() > 0) {
-			for (int i = 0; i < campsites.size(); i++) {
-				int counter = i + 1;
-				double totalCost = 0;
-				LocalDate endDate = endInput;
-				LocalDate startDate = startInput;
-				Duration diff = Duration.between(startDate.atStartOfDay(), endDate.atStartOfDay());
-				long diffDays = diff.toDays();
-				totalCost = campground.getDailyFee() * (diffDays);
-				System.out.printf("%1d.) %-4s \t%-5s \t\t%5s  \t\t%5s \t\t$%.2f\n", counter,
-						campsites.get(i).getSiteNumber(), campsites.get(i).getMaxOccupancy(),
-						campsites.get(i).isAccessible(), campsites.get(i).isHasUtilities(), totalCost);
-
-			}
-		} else {
-			System.out.println("\n*** No results ***");
-		}
-	}
-
 	
-
-	public void handleCampgroundMenu(Park savedPark) {
-		System.out.println("\nCampground Info and Menu");
-		String choice = (String) menu.getChoiceFromOptions(MenuOptions.CAMPGROUND_MENU_OPTIONS);
-		if (choice.equals(MenuOptions.CAMPGROUND_MENU_OPTION_SEARCH_FOR_AVAILABLE_RESERVATION)) {
-			handleReservationSearch(savedPark);
-		} else {
-			handleParkMenu(savedPark);
-		}
-	}
-
-	public boolean isMonthWithinRange(Month campOpen, Month campClose, Month dateToCheck) {
-		return dateToCheck.compareTo(campOpen) >= 0 && dateToCheck.compareTo(campClose) <= 0;
-	}
-
-	public boolean isDurationValid(Month campOpen, Month campClose, LocalDate startDateToCheck,
-			LocalDate endDateToCheck) {
-		if (campOpen.equals(Month.JANUARY) && campClose.equals(Month.DECEMBER)) {
-			return true;
-		}
-		if (startDateToCheck.getYear() == endDateToCheck.getYear()) {
-			return true;
-		}
-		return false;
-
-	}
-
-	public void handleReservationSearch(Park savedPark) {
-		System.out.println();
-		List<Campground> campgrounds = campgroundDAO.getCampgroundsByParkName(savedPark.getName());
-		listCampgrounds(campgrounds);
-		String campgroundReserveString = getUserInput("Enter Campground (enter 0 to cancel): ");
-		int option0 = Integer.parseInt(campgroundReserveString);
-
-		if (option0 == 0) {
-			handleCampgroundMenu(savedPark);
-		} else {
-			Campground checkCampgroundToReserve = campgrounds.get(Integer.parseInt(campgroundReserveString) - 1);
-			LocalDate checkStartDate = getSafeUserDate("Enter start date (yyyy-mm-dd): ");
-			LocalDate checkEndDate = getSafeUserDate("Enter end date (yyyy-mm-dd): ");
-//			int[] openMonths = campgroundDAO.getCampgroundOpenMonths(checkCampgroundToReserve);
-//			for (int i = 0; i < openMonths.length; i++) {
-
-			Month openMonth = Month.of(Integer.parseInt(checkCampgroundToReserve.getOpenMonth()));
-			Month closeMonth = Month.of(Integer.parseInt(checkCampgroundToReserve.getCloseMonth()));
-
-			try {
-				validateReservation(checkStartDate, checkEndDate, openMonth, closeMonth);
-			} catch (ValidationException e) {
-				System.out.println(e.getMessage());
-				handleReservationSearch(savedPark);
-				return;
-			}
-//----------------------------------------------------------------------------
-			List<Reservation> overlappingReservations = reservationDAO
-					.getOverlappingReservations(checkCampgroundToReserve, checkStartDate, checkEndDate);
-			List<Campsite> availableCampsites = campsiteDAO.getTopFiveCampsites(checkCampgroundToReserve,
-					overlappingReservations);
-
-			listCampsites(checkCampgroundToReserve, availableCampsites, checkStartDate, checkEndDate);
-
-			// Put into another handler maybe
-			String campsiteReserveString = getUserInput("Enter the Campsite you would like to reserve: ");
-			Campsite campsiteToReserve = availableCampsites.get(Integer.parseInt(campsiteReserveString) - 1);
-			String reservationName = getUserInput("Enter name to reserve under: ");
-			Reservation newReservation = new Reservation();
-			newReservation.setSiteId(campsiteToReserve.getSiteId());
-			newReservation.setName(reservationName);
-			newReservation.setFromDate(checkStartDate);
-			newReservation.setToDate(checkEndDate);
-			reservationDAO.createReservation(checkCampgroundToReserve, newReservation);
-			System.out.println("Thank you for booking a reservation at " + checkCampgroundToReserve.getCampgroundName());
-			System.out.println("Reservation ID: " + newReservation.getReservationId() + "\n");
-
-		}
-
-	}
-
-	private void validateReservation(LocalDate checkStartDate, LocalDate checkEndDate, Month openMonth,
-			Month closeMonth) throws ValidationException {
-		if (checkStartDate.isBefore(LocalDate.now())) {
-			throw new ValidationException("\nSorry, reservations must be for future dates.");
-		} else if (!isMonthWithinRange(openMonth, closeMonth, checkStartDate.getMonth())
-				|| !isMonthWithinRange(openMonth, closeMonth, checkEndDate.getMonth())) {
-			throw new ValidationException("\nSorry, campground is closed on that date.");
-		} else if (!checkStartDate.isBefore(checkEndDate)) {
-			throw new ValidationException("\nStarting date must be before ending date.");
-		} else if (!isDurationValid(openMonth, closeMonth, checkStartDate, checkEndDate)) {
-			throw new ValidationException("\nSorry, your reservation is too long.");
-		}
-	}
-
-	// Gets LocalDate from user input, must have correct format
-	private LocalDate getSafeUserDate(String prompt) {
-		LocalDate reserveStartDate = null;
-		while (reserveStartDate == null) {
-			try {
-				String reserveStartString = getUserInput(prompt);
-				reserveStartDate = LocalDate.parse(reserveStartString);
-			} catch (DateTimeParseException e) {
-				System.out.println("Invalid date, please follow format (yyyy-mm-dd)");
-			}
-		}
-		return reserveStartDate;
-	}
-
 	public void run() {
 		while (true) {
 			List<Park> parks = parkDAO.getAllParks();
@@ -253,4 +106,150 @@ public class CampgroundCLI {
 		}
 	}
 
+	
+	private void listCampgrounds(List<Campground> campgrounds) {
+		System.out.printf("\n    %-24s \t%4s \t%5s \t%10s\n", "Name", "Open", "Close", "Daily Fee");
+		if (campgrounds.size() > 0) {
+			for (int i = 0; i < campgrounds.size(); i++) {
+				int counter = i + 1;
+				System.out.printf("%1d.) %-26s \t%2s \t%2s   \t$%.2f\n", counter,
+						campgrounds.get(i).getCampgroundName(), campgrounds.get(i).getOpenMonth(),
+						campgrounds.get(i).getCloseMonth(), campgrounds.get(i).getDailyFee());
+
+			}
+		} else {
+			System.out.println("\n*** No results ***");
+		}
+	}
+	
+	
+	public void handleCampgroundMenu(Park savedPark) {
+		System.out.println("\nCampground Info and Menu");
+		String choice = (String) menu.getChoiceFromOptions(MenuOptions.CAMPGROUND_MENU_OPTIONS);
+		if (choice.equals(MenuOptions.CAMPGROUND_MENU_OPTION_SEARCH_FOR_AVAILABLE_RESERVATION)) {
+			handleReservationSearch(savedPark);
+		} else {
+			handleParkMenu(savedPark);
+		}
+	}
+	
+	public void handleReservationSearch(Park park) {
+		System.out.println();
+		List<Campground> campgrounds = campgroundDAO.getCampgroundsByParkName(park.getName());
+		listCampgrounds(campgrounds);
+		String campgroundOption = getUserInput("Enter Campground (enter 0 to cancel): ");
+		if (Integer.parseInt(campgroundOption) == 0) {
+			handleCampgroundMenu(park);
+		} else {
+			Campground campgroundToReserve = campgrounds.get(Integer.parseInt(campgroundOption) - 1);
+			LocalDate reservationStartDate = getSafeUserDate("Enter start date (yyyy-mm-dd): ");
+			LocalDate reservationEndDate = getSafeUserDate("Enter end date (yyyy-mm-dd): ");
+
+			Month campOpenMonth = Month.of(Integer.parseInt(campgroundToReserve.getOpenMonth()));
+			Month campCloseMonth = Month.of(Integer.parseInt(campgroundToReserve.getCloseMonth()));
+
+			try {
+				validateReservation(reservationStartDate, reservationEndDate, campOpenMonth, campCloseMonth);
+			} catch (ValidationException e) {
+				System.out.println(e.getMessage());
+				handleReservationSearch(park);
+				return;
+			}
+			
+			List<Reservation> overlappingReservations = reservationDAO
+					.getOverlappingReservations(campgroundToReserve, reservationStartDate, reservationEndDate);
+			List<Campsite> availableCampsites = campsiteDAO.getTopFiveCampsites(campgroundToReserve,
+					overlappingReservations);
+
+			listCampsites(campgroundToReserve, availableCampsites, reservationStartDate, reservationEndDate);
+
+			// Put into another handler maybe
+			String campsiteOption = getUserInput("Enter the Campsite you would like to reserve: ");
+			Campsite campsiteToReserve = availableCampsites.get(Integer.parseInt(campsiteOption) - 1);
+			String reservationName = getUserInput("Enter name to reserve under: ");
+			Reservation reservation = saveReservation(campgroundToReserve, 
+					reservationStartDate, reservationEndDate,
+					campsiteToReserve, reservationName);
+			System.out.println("Thank you for booking a reservation at " + campgroundToReserve.getCampgroundName());
+			System.out.println("Reservation ID: " + reservation.getReservationId() + "\n");
+		}
+	}
+
+	private Reservation saveReservation(Campground checkCampgroundToReserve, LocalDate checkStartDate, LocalDate checkEndDate,
+			Campsite campsiteToReserve, String reservationName) {
+		Reservation newReservation = new Reservation();
+		newReservation.setSiteId(campsiteToReserve.getSiteId());
+		newReservation.setName(reservationName);
+		newReservation.setFromDate(checkStartDate);
+		newReservation.setToDate(checkEndDate);
+		reservationDAO.createReservation(checkCampgroundToReserve, newReservation);
+		return newReservation;
+	}
+	
+	
+	private void listCampsites(Campground campground, List<Campsite> campsites, LocalDate startInput,
+			LocalDate endInput) {
+		System.out.println();
+		System.out.printf("    %8s \t%10s \t%10s\t%-10s \t%10s\n", "Site No.", "Max Occup.", "Accessible", "Utilities",
+				"Total Cost");
+
+		if (campsites.size() > 0) {
+			for (int i = 0; i < campsites.size(); i++) {
+				double totalCost = 0;
+				Duration diff = Duration.between(startInput.atStartOfDay(), endInput.atStartOfDay());
+				long diffDays = diff.toDays();
+				totalCost = campground.getDailyFee() * (diffDays);
+				System.out.printf("%1d.) %-4s \t%-5s \t\t%5s  \t\t%5s \t\t$%.2f\n", i + 1,
+						campsites.get(i).getSiteNumber(), campsites.get(i).getMaxOccupancy(),
+						campsites.get(i).isAccessible(), campsites.get(i).isHasUtilities(), totalCost);
+
+			}
+		} else {
+			System.out.println("\n*** No results ***");
+		}
+	}
+	
+	public boolean isMonthWithinRange(Month campOpen, Month campClose, Month dateToCheck) {
+		return dateToCheck.compareTo(campOpen) >= 0 && dateToCheck.compareTo(campClose) <= 0;
+	}
+
+	public boolean isDurationValid(Month campOpen, Month campClose, LocalDate startDateToCheck,
+			LocalDate endDateToCheck) {
+		if (campOpen.equals(Month.JANUARY) && campClose.equals(Month.DECEMBER)) {
+			return true;
+		}
+		if (startDateToCheck.getYear() == endDateToCheck.getYear()) {
+			return true;
+		}
+		return false;
+
+	}
+
+	private void validateReservation(LocalDate checkStartDate, LocalDate checkEndDate, Month openMonth,
+			Month closeMonth) throws ValidationException {
+		if (checkStartDate.isBefore(LocalDate.now())) {
+			throw new ValidationException("\nSorry, reservations must be for future dates.");
+		} else if (!isMonthWithinRange(openMonth, closeMonth, checkStartDate.getMonth())
+				|| !isMonthWithinRange(openMonth, closeMonth, checkEndDate.getMonth())) {
+			throw new ValidationException("\nSorry, campground is closed on that date.");
+		} else if (!checkStartDate.isBefore(checkEndDate)) {
+			throw new ValidationException("\nStarting date must be before ending date.");
+		} else if (!isDurationValid(openMonth, closeMonth, checkStartDate, checkEndDate)) {
+			throw new ValidationException("\nSorry, your reservation is too long.");
+		}
+	}
+
+	// Gets LocalDate from user input, must have correct format
+	private LocalDate getSafeUserDate(String prompt) {
+		LocalDate reserveStartDate = null;
+		while (reserveStartDate == null) {
+			try {
+				String reserveStartString = getUserInput(prompt);
+				reserveStartDate = LocalDate.parse(reserveStartString);
+			} catch (DateTimeParseException e) {
+				System.out.println("Invalid date, please follow format (yyyy-mm-dd)");
+			}
+		}
+		return reserveStartDate;
+	}
 }
