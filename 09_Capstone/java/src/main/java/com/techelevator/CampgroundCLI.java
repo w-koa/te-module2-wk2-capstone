@@ -3,6 +3,7 @@ package com.techelevator;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
@@ -63,6 +64,7 @@ public class CampgroundCLI {
 	public void run() {
 		while (true) {
 			List<Park> parks = parkDAO.getAllParks();
+			// Alternate method to show park names. Left in to reference later.
 //			parks.stream()
 //				.map(Park::getName)
 //				.collect(Collectors.toList())
@@ -84,35 +86,44 @@ public class CampgroundCLI {
 				break;
 			} else {
 				// Prints Park Info
-				System.out.println(savedPark.getName() + " National Park \nLocation:\t" + savedPark.getLocation()
-						+ "\nEstablished:\t" + savedPark.getEstablishDate() + "\nArea:\t\t" + savedPark.getArea()
-						+ "\nVisitors:\t" + savedPark.getVisitors());
-				System.out.println(savedPark.getDescription());
+				System.out.println(savedPark.getName() + " National Park \nLocation:\t " + savedPark.getLocation()
+						+ "\nEstablished:\t " + savedPark.getEstablishDate().format(DateTimeFormatter.ofPattern("MM/dd/YYYY")));
+				System.out.printf("Area:\t\t %,d Sq. km", savedPark.getArea());
+				System.out.printf("\nVisitors:\t %,d \n", savedPark.getVisitors());
+				// String Builder formats the description of park from one long string to a few shorter ones.
+				StringBuilder sb = new StringBuilder(savedPark.getDescription());
+				int i = 0;
+				while (i + 80 < sb.length() && (i = sb.lastIndexOf(" ", i + 80)) != -1) {
+				    sb.replace(i, i + 1, "\n");
+				}
+				System.out.println("\n" + sb.toString());
+				
 				handleParkMenu(savedPark);
 
 			}
 
 		}
 	}
-	
+	// Display park menu and get user input.
 	public void handleParkMenu(Park savedPark) {
 		System.out.println("\nPark Info and Menu");
 		String choice = (String) menu.getChoiceFromOptions(MenuOptions.PARK_MENU_OPTIONS);
 		if (choice.equals(MenuOptions.PARK_MENU_OPTION_VIEW_CAMPGROUNDS)) {
 			listCampgrounds(campgroundDAO.getCampgroundsByParkName(savedPark.getName()));
+			System.out.println();
 		} else if (choice.equals(MenuOptions.PARK_MENU_OPTION_SEARCH_FOR_RESERVATION)) {
 			listCampgrounds(campgroundDAO.getCampgroundsByParkName(savedPark.getName()));
 			handleCampgroundMenu(savedPark);
 		}
 	}
-
 	
+	// Prints formatted information about campgrounds.
 	private void listCampgrounds(List<Campground> campgrounds) {
-		System.out.printf("\n    %-24s \t%4s \t%5s \t%10s\n", "Name", "Open", "Close", "Daily Fee");
+		System.out.printf("\n    %-24s \t%4s \t%5s\t%10s\n", "Name", "Open", "Close", "Daily Fee");
 		if (campgrounds.size() > 0) {
 			for (int i = 0; i < campgrounds.size(); i++) {
 				int counter = i + 1;
-				System.out.printf("%1d.) %-26s \t%2s \t%2s   \t$%.2f\n", counter,
+				System.out.printf("%1d.) %-26s \t%2s \t%2s   \t $%.2f\n", counter,
 						campgrounds.get(i).getCampgroundName(), campgrounds.get(i).getOpenMonth(),
 						campgrounds.get(i).getCloseMonth(), campgrounds.get(i).getDailyFee());
 
@@ -122,7 +133,7 @@ public class CampgroundCLI {
 		}
 	}
 	
-	
+	// Display campground menu and get input
 	public void handleCampgroundMenu(Park savedPark) {
 		System.out.println("\nCampground Info and Menu");
 		String choice = (String) menu.getChoiceFromOptions(MenuOptions.CAMPGROUND_MENU_OPTIONS);
@@ -133,12 +144,15 @@ public class CampgroundCLI {
 		}
 	}
 	
+	// Display reservation search menu and gets user input
 	public void handleReservationSearch(Park park) {
 		System.out.println();
+		System.out.println("Campground Reservation Search");
 		List<Campground> campgrounds = campgroundDAO.getCampgroundsByParkName(park.getName());
 		listCampgrounds(campgrounds);
 		String campgroundOption = getUserInput("Enter Campground (enter 0 to cancel): ");
 		if (Integer.parseInt(campgroundOption) == 0) {
+			// Cancels search and goes back to previous menu
 			handleCampgroundMenu(park);
 		} else {
 			Campground campgroundToReserve = campgrounds.get(Integer.parseInt(campgroundOption) - 1);
@@ -186,7 +200,7 @@ public class CampgroundCLI {
 		return newReservation;
 	}
 	
-	
+	// Displays formatted information about campsites. User does not see site ID.
 	private void listCampsites(Campground campground, List<Campsite> campsites, LocalDate startInput,
 			LocalDate endInput) {
 		System.out.println();
@@ -209,6 +223,7 @@ public class CampgroundCLI {
 		}
 	}
 	
+	// Checks if months are within campground open season. 
 	public boolean isMonthWithinRange(Month campOpen, Month campClose, Month dateToCheck) {
 		return dateToCheck.compareTo(campOpen) >= 0 && dateToCheck.compareTo(campClose) <= 0;
 	}
@@ -222,9 +237,10 @@ public class CampgroundCLI {
 			return true;
 		}
 		return false;
-
 	}
 
+	// Checks that a reservation is valid. Throws exception for different error situations and gives user 
+	// relevant feedback on their error.
 	private void validateReservation(LocalDate checkStartDate, LocalDate checkEndDate, Month openMonth,
 			Month closeMonth) throws ValidationException {
 		if (checkStartDate.isBefore(LocalDate.now())) {
@@ -239,7 +255,7 @@ public class CampgroundCLI {
 		}
 	}
 
-	// Gets LocalDate from user input, must have correct format
+	// Gets LocalDate from user input, must have correct format or exception thrown.
 	private LocalDate getSafeUserDate(String prompt) {
 		LocalDate reserveStartDate = null;
 		while (reserveStartDate == null) {
