@@ -31,11 +31,11 @@ public class JDBCParkDAOTest {
 		dataSource.setUrl("jdbc:postgresql://localhost:5432/campground");
 		dataSource.setUsername("postgres");
 		dataSource.setPassword("postgres1");
-		dataSource.setAutoCommit(false);
+		dataSource.setAutoCommit(false); 
 	}
 
 	@AfterClass
-	public static void closeDataSource() {
+	public static void closeDataSource() { 
 		dataSource.destroy();
 	}
 
@@ -50,7 +50,7 @@ public class JDBCParkDAOTest {
 	}
 
 	@After
-	public void rollback() throws SQLException {
+	public void rollback() throws SQLException { 
 		dataSource.getConnection().rollback();
 	}
 

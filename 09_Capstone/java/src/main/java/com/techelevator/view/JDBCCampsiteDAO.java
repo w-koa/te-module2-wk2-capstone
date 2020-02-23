@@ -14,7 +14,7 @@ import com.techelevator.model.Campsite;
 import com.techelevator.model.CampsiteDAO;
 import com.techelevator.model.Reservation;
 
-public class JDBCCampsiteDAO implements CampsiteDAO {
+public class JDBCCampsiteDAO implements CampsiteDAO { 
 
 	private JdbcTemplate jdbcTemplate;
 

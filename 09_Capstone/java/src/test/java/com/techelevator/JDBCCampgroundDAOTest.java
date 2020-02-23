@@ -25,7 +25,7 @@ public class JDBCCampgroundDAOTest {
 	@BeforeClass
 	public static void setupDataSource() {
 		dataSource = new SingleConnectionDataSource();
-		dataSource.setUrl("jdbc:postgresql://localhost:5432/campground");
+		dataSource.setUrl("jdbc:postgresql://localhost:5432/campground"); 
 		dataSource.setUsername("postgres");
 		dataSource.setPassword("postgres1");
 		dataSource.setAutoCommit(false);
@@ -47,7 +47,7 @@ public class JDBCCampgroundDAOTest {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.update(sqlInsertPark);
 		jdbcTemplate.update(sqlInsertCampGround);
-		campgroundDAO = new JDBCCampgroundDAO(dataSource);
+		campgroundDAO = new JDBCCampgroundDAO(dataSource); 
 
 	}
 

@@ -46,5 +46,5 @@ public abstract class DAOIntegrationTest {
 	 * they can instantiate a DAO for testing */
 	protected DataSource getDataSource() {
 		return dataSource;
-	}
+	} 
 }

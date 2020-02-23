@@ -27,14 +27,14 @@ public class JDBCReservationDAOTest {
 	@BeforeClass
 	public static void setupDataSource() {
 		dataSource = new SingleConnectionDataSource();
-		dataSource.setUrl("jdbc:postgresql://localhost:5432/campground");
+		dataSource.setUrl("jdbc:postgresql://localhost:5432/campground"); 
 		dataSource.setUsername("postgres");
 		dataSource.setPassword("postgres1");
 		dataSource.setAutoCommit(false);
 	}
 
 	@AfterClass
-	public static void closeDataSource() {
+	public static void closeDataSource() { 
 		dataSource.destroy();
 	}
 

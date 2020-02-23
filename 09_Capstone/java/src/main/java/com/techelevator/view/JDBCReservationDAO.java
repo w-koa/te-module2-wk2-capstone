@@ -18,7 +18,7 @@ public class JDBCReservationDAO implements ReservationDAO {
 
 	private JdbcTemplate jdbcTemplate;
 
-	public JDBCReservationDAO(DataSource dataSource) {
+	public JDBCReservationDAO(DataSource dataSource) { 
 		jdbcTemplate = new JdbcTemplate(dataSource);
 	}
 	
