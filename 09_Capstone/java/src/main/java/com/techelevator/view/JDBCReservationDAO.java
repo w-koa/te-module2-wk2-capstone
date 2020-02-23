@@ -65,6 +65,7 @@ public class JDBCReservationDAO implements ReservationDAO {
 			throw new RuntimeException("Uhoh!  Something went wrong while getting the next id!");
 		}
 	}
+	//set to public for testing purpose only
 	public Reservation mapRowToReservation(SqlRowSet results) {
 		Reservation reservation = new Reservation();
 		reservation.setReservationId(results.getInt("reservation_id"));

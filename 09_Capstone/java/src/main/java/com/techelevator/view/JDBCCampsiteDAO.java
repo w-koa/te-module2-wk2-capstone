@@ -64,8 +64,8 @@ public class JDBCCampsiteDAO implements CampsiteDAO {
 
 		return topFiveCampsitesAvailable;
 	}
-
-	private Campsite mapRowToCampsite(SqlRowSet results) {
+	//set public for test purpose only
+	public Campsite mapRowToCampsite(SqlRowSet results) {
 		Campsite campsite = new Campsite();
 
 		campsite.setSiteId(results.getInt("site_id"));

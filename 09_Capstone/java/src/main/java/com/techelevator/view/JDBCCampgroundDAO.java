@@ -19,8 +19,8 @@ public class JDBCCampgroundDAO implements CampgroundDAO {
 	public JDBCCampgroundDAO(DataSource dataSource) {
 		jdbcTemplate = new JdbcTemplate(dataSource);
 	}
-	
-	private Campground mapRowToCampground(SqlRowSet results) {
+	//set to public just for testing purpose
+	public Campground mapRowToCampground(SqlRowSet results) {
 		Campground campground = new Campground();
 		campground.setCampgroundId(results.getInt("campground_id"));
 		campground.setParkId(results.getInt("park_id"));

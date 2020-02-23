@@ -82,7 +82,7 @@ public class JDBCReservationDAOTest {
 			reservations.add(reservationDAO.mapRowToReservation(results));
 		}
 		assertEquals(9999, reservations.get(0).getReservationId());
-		
+		assertEquals(1, reservations.size());
 	}
 	
 	@Test
