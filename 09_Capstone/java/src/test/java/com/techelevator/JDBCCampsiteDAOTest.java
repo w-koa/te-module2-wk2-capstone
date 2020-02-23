@@ -22,17 +22,19 @@ import com.techelevator.model.Reservation;
 import com.techelevator.view.JDBCCampgroundDAO;
 import com.techelevator.view.JDBCCampsiteDAO;
 import com.techelevator.view.JDBCParkDAO;
+import com.techelevator.view.JDBCReservationDAO;
 
 public class JDBCCampsiteDAOTest {
 
 	private static SingleConnectionDataSource dataSource;
 	private JDBCCampsiteDAO campsiteDAO;
 	private JDBCCampgroundDAO campgroundDAO;
+	private JDBCReservationDAO reservationDAO;
 
 	@BeforeClass
 	public static void setupDataSource() {
 		dataSource = new SingleConnectionDataSource();
-		dataSource.setUrl("jdbc:postgresql://localhost:5432/campground");
+		dataSource.setUrl("jdbc:postgresql://localhost:5432/campground"); 
 		dataSource.setUsername("postgres");
 		dataSource.setPassword("postgres1");
 		dataSource.setAutoCommit(false);
@@ -54,16 +56,20 @@ public class JDBCCampsiteDAOTest {
 				+ " VALUES (623 , 8 , 1, 5, false, 0, true ) ";
 		String sqlInsertSiteB = "INSERT INTO site (site_id, campground_id, site_number, max_occupancy, accessible, max_rv_length, utilities) "
 				+ " VALUES (624 , 8 , 2, 6, false, 0, true ) ";
+		String sqlInsertReservationActive = "INSERT INTO reservation (reservation_id, site_id, name, from_date, to_date, create_date) "
+				+ " VALUES (9999 , 623, 'Sonthaya Deelua', '2020-02-18', '2020-02-25', '2020-02-21') ";
 
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.update(sqlInsertPark);
 		jdbcTemplate.update(sqlInsertCampGround);
 		jdbcTemplate.update(sqlInsertSiteA);
 		jdbcTemplate.update(sqlInsertSiteB);
+		jdbcTemplate.update(sqlInsertReservationActive);
 
 
 		campgroundDAO = new JDBCCampgroundDAO(dataSource);
 		campsiteDAO = new JDBCCampsiteDAO(dataSource);
+		reservationDAO = new JDBCReservationDAO(dataSource);
 	}
 
 	@After
@@ -74,16 +80,8 @@ public class JDBCCampsiteDAOTest {
 	@Test
 	public void test_to_get_all_campsite_in_campground() {
 		
-		List<Campground> campgrounds = new ArrayList<>();
 		Campground test = new Campground();
-		test.setCampgroundId(8);
-		test.setParkId(4);
-		test.setCampgroundName("CAMPTEST"); 
-		test.setOpenMonth("05");
-		test.setCloseMonth("10");
-		test.setDailyFee(100);
-		campgrounds.add(test);
-		
+		test.setCampgroundId(8);		
 		List<Campsite> campsites = campsiteDAO.getAllCampsitesInCampground(test);
 		assertNotNull(campsites);
 		assertEquals(8, campsites.get(campsites.size()-2).getCampgroundId());
@@ -92,6 +90,24 @@ public class JDBCCampsiteDAOTest {
 		assertEquals(623, campsites.get(campsites.size()-2).getSiteId());
 		assertEquals(624, campsites.get(campsites.size()-1).getSiteId());
 
+	}
+	
+	@Test
+	
+	public void test_to_get_top_5_campsite_in_in_campground() { 
+	
+		Campground test = new Campground();
+		test.setCampgroundId(8);
+	
+		List<Reservation> activeBooked = reservationDAO.getOverlappingReservations( 8, LocalDate.parse("2020-02-22"), 
+			LocalDate.parse("2020-02-23"));	
+	
+		List<Campsite> availableCampsites = campsiteDAO.getTopFiveCampsites (test, activeBooked);
+	
+		assertNotNull(availableCampsites);
+		assertEquals( 1, availableCampsites.size()); //Test side of ArrayList
+		assertEquals(624, availableCampsites.get(availableCampsites.size() -1).getSiteId());// Only one available
+		
 	}
 
 }

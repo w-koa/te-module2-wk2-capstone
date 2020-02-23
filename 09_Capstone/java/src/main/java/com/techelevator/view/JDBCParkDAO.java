@@ -29,7 +29,7 @@ public class JDBCParkDAO implements ParkDAO {
 		park.setEstablishDate(results.getDate("establish_date").toLocalDate());
 		park.setArea(results.getInt("area"));
 		park.setVisitors(results.getInt("visitors"));
-		park.setDescription(results.getString("description"));
+		park.setDescription(results.getString("description")); 
 		return park;
 	}
 

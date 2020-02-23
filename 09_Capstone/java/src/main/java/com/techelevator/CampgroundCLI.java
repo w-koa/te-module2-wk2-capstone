@@ -36,7 +36,7 @@ public class CampgroundCLI {
 
 	public static void main(String[] args) {
 
-		CampgroundCLI application = new CampgroundCLI();
+		CampgroundCLI application = new CampgroundCLI(); 
 		application.run();
 	}
 

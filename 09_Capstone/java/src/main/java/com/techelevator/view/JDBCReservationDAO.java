@@ -38,7 +38,7 @@ public class JDBCReservationDAO implements ReservationDAO {
 			overlappingReservations.add(reservation);
 		}
 		if (overlappingReservations.size() == 0) {
-			System.out.println("No overlapping reservations!");
+			System.out.println("No overlapping reservations!"); 
 		}
 		return overlappingReservations;
 		
@@ -52,6 +52,7 @@ public class JDBCReservationDAO implements ReservationDAO {
 		jdbcTemplate.update(sqlCreateReservation, newReservation.getReservationId(), newReservation.getSiteId(), 
 				newReservation.getName(), newReservation.getFromDate(), newReservation.getToDate(), createDate);
 		
+	
 		
 
 	}
@@ -62,11 +63,11 @@ public class JDBCReservationDAO implements ReservationDAO {
 		if (nextIdResult.next()) {
 			return nextIdResult.getInt(1);
 		} else {
-			throw new RuntimeException("Uhoh!  Something went wrong while getting the next id!");
+			throw new RuntimeException("Uhoh!  Something went wrong while getting the next id!"); 
 		}
 	}
 	//set to public for testing purpose only
-	public Reservation mapRowToReservation(SqlRowSet results) {
+	private Reservation mapRowToReservation(SqlRowSet results) {
 		Reservation reservation = new Reservation();
 		reservation.setReservationId(results.getInt("reservation_id"));
 		reservation.setSiteId(results.getInt("site_id"));

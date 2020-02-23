@@ -33,7 +33,7 @@ public class JDBCCampsiteDAO implements CampsiteDAO {
 
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlGetAllCampsiteByCampgroundId, campground.getCampgroundId());
 		while (results.next()) {
-			allCampsitesInCampground.add(mapRowToCampsite(results));
+			allCampsitesInCampground.add(mapRowToCampsite(results)); 
 		}
 		return allCampsitesInCampground;
 	}
@@ -57,7 +57,7 @@ public class JDBCCampsiteDAO implements CampsiteDAO {
 			}
 		} else {
 			for (int i = 0; i < 5; i++) {
-				topFiveCampsitesAvailable.add(campsitesInCampground.get(i));
+				topFiveCampsitesAvailable.add(campsitesInCampground.get(i)); 
 			}
 		}
 		
@@ -65,7 +65,7 @@ public class JDBCCampsiteDAO implements CampsiteDAO {
 		return topFiveCampsitesAvailable;
 	}
 	//set public for test purpose only
-	public Campsite mapRowToCampsite(SqlRowSet results) {
+	private Campsite mapRowToCampsite(SqlRowSet results) {
 		Campsite campsite = new Campsite();
 
 		campsite.setSiteId(results.getInt("site_id"));

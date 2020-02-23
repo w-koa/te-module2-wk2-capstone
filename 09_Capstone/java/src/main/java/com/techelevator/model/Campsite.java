@@ -16,7 +16,7 @@ public class Campsite {
 	public int getSiteId() {
 		return siteId;
 	}
-	public void setSiteId(int siteId) {
+	public void setSiteId(int siteId) { 
 		this.siteId = siteId;
 	}
 	public int getCampgroundId() {

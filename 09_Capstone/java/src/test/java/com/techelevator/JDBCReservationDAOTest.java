@@ -27,7 +27,7 @@ public class JDBCReservationDAOTest {
 	@BeforeClass
 	public static void setupDataSource() {
 		dataSource = new SingleConnectionDataSource();
-		dataSource.setUrl("jdbc:postgresql://localhost:5432/campground"); 
+		dataSource.setUrl("jdbc:postgresql://localhost:5432/campground");  
 		dataSource.setUsername("postgres");
 		dataSource.setPassword("postgres1");
 		dataSource.setAutoCommit(false);
@@ -48,7 +48,7 @@ public class JDBCReservationDAOTest {
 		String sqlInsertSite = "INSERT INTO site (site_id, campground_id, site_number, max_occupancy, accessible, max_rv_length, utilities) "
 				+ " VALUES (623 , 8 , 1, 5, false, 0, true ) ";
 		String sqlInsertReservationActive = "INSERT INTO reservation (reservation_id, site_id, name, from_date, to_date, create_date) "
-				+ " VALUES (9999 , 623, 'Sonthaya Deelua', '2020-02-18', '2020-02-25', '2020-02-21') ";
+				+ " VALUES (45 , 623, 'Sonthaya Deelua', '2020-02-18', '2020-02-25', '2020-02-21') ";
 
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.update(sqlInsertPark);
@@ -68,21 +68,18 @@ public class JDBCReservationDAOTest {
 	public void test_create_new_reservation() {
 		List<Reservation> reservations = new ArrayList<>();
 		Reservation test = new Reservation();
-		test.setReservationId(9999);
+		//No need to set reservation ID because we already have method getNextReservationId in main menu
 		test.setSiteId(623);
 		test.setName("TEST");
 		test.setFromDate(LocalDate.of(2020, 02, 28));
 		test.setToDate(LocalDate.of(2020, 04, 2));
+		reservations.add(test);
 		
 		reservationDAO.createReservation(test);
-		JdbcTemplate jdbc = new JdbcTemplate(dataSource);
-		String sqlFindTest = "SELECT * FROM reservation WHERE reservation_id = 9999";
-		SqlRowSet results = jdbc.queryForRowSet(sqlFindTest);
-		while (results.next()) {
-			reservations.add(reservationDAO.mapRowToReservation(results));
-		}
-		assertEquals(9999, reservations.get(0).getReservationId());
+
 		assertEquals(1, reservations.size());
+		assertEquals(623, reservations.get(reservations.size()-1).getSiteId());
+		assertEquals("TEST", reservations.get(reservations.size()-1).getName()); 
 	}
 	
 	@Test

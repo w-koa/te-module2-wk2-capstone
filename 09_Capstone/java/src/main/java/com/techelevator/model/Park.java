@@ -18,7 +18,7 @@ public class Park {
 	public int getParkId() {
 		return parkId;
 	}
-	public void setParkId(int parkId) {
+	public void setParkId(int parkId) { 
 		this.parkId = parkId;
 	}
 	public String getName() {

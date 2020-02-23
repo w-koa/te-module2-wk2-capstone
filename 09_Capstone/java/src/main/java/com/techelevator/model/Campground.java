@@ -18,7 +18,7 @@ public class Campground {
 	public int getCampgroundId() {
 		return campgroundId;
 	}
-	public void setCampgroundId(int campgroundId) {
+	public void setCampgroundId(int campgroundId) { 
 		this.campgroundId = campgroundId;
 	}
 	public int getParkId() {
